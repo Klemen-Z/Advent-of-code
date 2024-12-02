@@ -28,21 +28,44 @@ public class Main {
         for (ArrayList<Integer> list1 : list){
             boolean safe = true;
             int prevOp = 0;
+            int firstBad = -1;
+
             for (int i = 0; i < list1.size()-1; i++) {
                 int difference = list1.get(i)-list1.get(i+1);
-                if (difference > 0 && prevOp < 0 || difference < 0 && prevOp > 0 || difference > 3 || difference < -3 || difference == 0) {
+                if (isSafe(difference, prevOp)) {
                     safe = false;
+                    firstBad = i+1;
                     break;
                 } else {
-                    prevOp = difference;
+                    if (prevOp == 0){
+                        prevOp = difference;
+                    }
                 }
             }
+
+            if (firstBad != -1) {
+                list1.remove(firstBad);
+                safe = true;
+
+                for (int i = 0; i < list1.size()-1; i++) {
+                    int difference = list1.get(i)-list1.get(i+1);
+                    if (isSafe(difference, prevOp)) {
+                        safe = false;
+                        break;
+                    }
+                }
+            }
+
             if (safe) {
                 finalCount++;
             }
         }
 
         return finalCount;
+    }
+
+    private static boolean isSafe(int difference, int prevOp) {
+        return  difference > 0 && prevOp < 0 || difference < 0 && prevOp > 0 || difference > 3 || difference < -3 || difference == 0;
     }
 
     private static int getSimilarity(ArrayList<Integer> list1, ArrayList<Integer> list2) {
