@@ -6,22 +6,43 @@ import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
+        String[] nums = readFile("nums.txt").replace("\r", "").split("\n");
 
-        String[] nums = readFile("nums.txt").replace("   ", "\n").replace("\r", "").split("\n");
+        ArrayList<ArrayList<Integer>> list1 = new ArrayList<>();
 
-        ArrayList<Integer> list1 = new ArrayList<>();
-        ArrayList<Integer> list2 = new ArrayList<>();
+        for (String string : nums) {
+            String[] num = string.split(" ");
+            ArrayList<Integer> list = new ArrayList<>();
+            for (String s : num) {
+                list.add(Integer.parseInt(s));
+            }
+            list1.add(list);
+        }
 
-        for (int i = 0; i < nums.length; i++) {
-            int num = Integer.parseInt(nums[i]);
-            if (i % 2 == 0) {
-                list1.add(num);
-            } else {
-                list2.add(num);
+        System.out.println(getSafetyCount(list1));
+    }
+
+    private static int getSafetyCount(ArrayList<ArrayList<Integer>> list) {
+        int finalCount = 0;
+
+        for (ArrayList<Integer> list1 : list){
+            boolean safe = true;
+            int prevOp = 0;
+            for (int i = 0; i < list1.size()-1; i++) {
+                int difference = list1.get(i)-list1.get(i+1);
+                if (difference > 0 && prevOp < 0 || difference < 0 && prevOp > 0 || difference > 3 || difference < -3 || difference == 0) {
+                    safe = false;
+                    break;
+                } else {
+                    prevOp = difference;
+                }
+            }
+            if (safe) {
+                finalCount++;
             }
         }
 
-        System.out.println(getSimilarity(list1, list2));
+        return finalCount;
     }
 
     private static int getSimilarity(ArrayList<Integer> list1, ArrayList<Integer> list2) {
