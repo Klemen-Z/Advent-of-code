@@ -50,6 +50,10 @@ public class Main {
                     if (isSafe(difference, prevOp)) {
                         safe = false;
                         break;
+                    } else {
+                        if (prevOp == 0){
+                            prevOp = difference;
+                        }
                     }
                 }
             }
