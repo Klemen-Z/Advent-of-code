@@ -28,11 +28,13 @@ public class Main {
 
         for (ArrayList<Integer> list1 : list){
             boolean safe = false;
-            int removeInd = 0;
+            int removeInd = -1;
 
             while(!safe){
                 ArrayList<Integer> list2 = new ArrayList<>(list1);
-                list2.remove(removeInd);
+                if (removeInd != -1){
+                    list2.remove(removeInd);
+                }
                 safe = checkList(list2);
                 removeInd++;
                 if (removeInd > list1.size()-1){
