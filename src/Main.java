@@ -12,9 +12,115 @@ public class Main {
     public static void main(String[] args) {
         String input = readFile("input.txt");
 
-        String vals = regexMatch(input);
+        String word = "xmas";
 
-        System.out.println(multiplyAllThenAdd(ignoreDoDont(vals)));
+        final long start = System.currentTimeMillis();
+        System.out.println("Found '" + word + "' " + parseForWord(word, input.toLowerCase().replaceAll("\r", "").split("\n")));
+        final long end = System.currentTimeMillis();
+        System.out.println("Time taken: " + (end - start) + " ms");
+    }
+
+    private static int parseForWord(String word, String[] input) {
+        char[][] grid = new char[input.length][];
+        for(int i = 0; i < input.length; i++) {
+            grid[i] = input[i].toCharArray();
+        }
+
+        ArrayList<String> strings = new ArrayList<>();
+
+        strings.addAll(straightBuild(grid));
+        strings.addAll(verticalBuild(grid));
+        strings.addAll(diagonalBuild(grid));
+
+        return SearchStringsForWord(word, strings);
+    }
+
+    private static int SearchStringsForWord(String word, ArrayList<String> input) {
+        int finalCount = 0;
+        for (String s : input) {
+            if (s.length() < word.length()) continue;
+            String tempStr = s.toLowerCase();
+
+            finalCount += regexCount(tempStr, word);
+        }
+
+        return finalCount;
+    }
+
+    private static ArrayList<String> straightBuild(char[][] grid) {
+        char[][] tempGrid = grid.clone();
+        ArrayList<String> strings = new ArrayList<>();
+
+        for (char[] s : tempGrid) {
+            String tempString = String.valueOf(s);
+            strings.add(tempString);
+            strings.add(reverseWord(tempString));
+        }
+        return strings;
+    }
+
+    private static ArrayList<String> verticalBuild(char[][] grid) {
+        char[][] tempGrid = grid.clone();
+        ArrayList<String> strings = new ArrayList<>();
+
+        for (int i = 0; i < (tempGrid[0].length); i++) {
+            StringBuilder tempString = new StringBuilder();
+            for (char[] chars : tempGrid) {
+                tempString.append(chars[i]);
+            }
+            strings.add(tempString.toString());
+            strings.add(reverseWord(tempString.toString()));
+        }
+
+        return strings;
+    }
+
+    private static ArrayList<String> diagonalBuild(char[][] grid) {
+        char[][] tempGrid = grid.clone();
+        ArrayList<String> strings = new ArrayList<>();
+
+        for (int i = 0; i < (tempGrid[0].length); i++) {
+            StringBuilder tempString = new StringBuilder();
+            int tempNum = 0;
+            for (int j = tempGrid.length-1; j >= 0; j--) {
+                if (i+tempNum >= tempGrid[j].length) {break;}
+                tempString.append(tempGrid[j][i + tempNum]);
+                tempNum++;
+            }
+            strings.add(tempString.toString());
+            strings.add(reverseWord(tempString.toString()));
+        }
+
+        for (int i = (tempGrid[tempGrid.length-1].length-1); i >= 0; i--) {
+            StringBuilder tempString = new StringBuilder();
+            int tempNum = 0;
+
+            for (int j = tempGrid.length-1; j >= 0; j--) {
+                if (i+tempNum >= tempGrid[j].length) {break;}
+                tempString.append(tempGrid[j][i + tempNum]);
+                tempNum++;
+            }
+            strings.add(tempString.toString());
+            strings.add(reverseWord(tempString.toString()));
+        }
+
+        return strings;
+    }
+
+    private static String reverseWord(String word) {
+        return new StringBuilder(word).reverse().toString();
+    }
+
+    private static int regexCount(String str, String regex){
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(str.toLowerCase());
+        int count = 0;
+
+        while (matcher.find()) {
+            count++;
+        }
+
+        return count;
     }
 
     private static int multiplyAllThenAdd(ArrayList<String[]> nums){
