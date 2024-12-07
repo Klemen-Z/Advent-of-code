@@ -19,6 +19,7 @@ public class Main {
         System.out.println("Time taken: " + (end - start) + " ms");
     }
 
+    //day 7 methods below
     private Long sumAllResults(Set<Long> results){
         AtomicLong sum = new AtomicLong(0);
 
@@ -53,6 +54,7 @@ public class Main {
     private HashSet<List<Character>> generatePossibleOperands(int len){
         HashSet<List<Character>> sequenceSet = new HashSet<>();
 
+        //for part 1 of day seven remove the '|' from the char array being passed to the recursive function.
         generateCharacterCombinationsRecursive(new char[]{'+', '*', '|'}, len-1, new ArrayList<>(), sequenceSet);
 
         return sequenceSet;
@@ -100,6 +102,7 @@ public class Main {
         return possibleEquations;
     }
 
+    //Day 6 methods below
     private int obstacleLoopPositionCount(char[][] grid) {
         List<ArrayList<Integer>> possiblePositions = Collections.synchronizedList(new ArrayList<>());
 
@@ -354,15 +357,7 @@ public class Main {
         return previousPositions.size();
     }
 
-    private char[][] createGrid(String input) {
-        String[] strArr = input.replace("\r", "").split("\n");
-        char[][] grid = new char[strArr.length][];
-        for (int i = 0; i < strArr.length; i++) {
-            grid[i] = strArr[i].toCharArray();
-        }
-        return grid;
-    }
-
+    //Day 5 methods below
     private int addMiddleNumbers(ArrayList<ArrayList<Integer>> correctIntArrs) {
         int count = 0;
 
@@ -473,6 +468,7 @@ public class Main {
         return ruleSets;
     }
 
+    //Day 4 methods below
     private int parseForXOfWord(String word,String input) {
         char[][] grid = createGrid(input);
 
@@ -630,6 +626,7 @@ public class Main {
         return count;
     }
 
+    //Day 3 methods below
     private int multiplyAllThenAdd(ArrayList<String[]> nums){
         int finalCount = 0;
 
@@ -700,14 +697,15 @@ public class Main {
         return input.replace("m", " ").replace("u", "").replace("l", "").replace("(", "").replace(")", "").replace(",", " ").split(" ");
     }
 
-    private int getSafetyCount(ArrayList<ArrayList<Integer>> list) {
+    //Day 2 methods below
+    private int getSafetyCount(ArrayList<ArrayList<Integer>> list, boolean part1) {
         int finalCount = 0;
 
         for (ArrayList<Integer> list1 : list){
-            boolean safe = false;
+            boolean safe = checkList(list1);
             int removeInd = -1;
 
-            while(!safe){
+            while(!safe && !part1){
                 ArrayList<Integer> list2 = new ArrayList<>(list1);
                 if (removeInd != -1){
                     list2.remove(removeInd);
@@ -747,6 +745,7 @@ public class Main {
         return  difference > 0 && prevOp < 0 || difference < 0 && prevOp > 0 || difference > 3 || difference < -3 || difference == 0;
     }
 
+    //Day 1 methods below
     private int getSimilarity(ArrayList<Integer> list1, ArrayList<Integer> list2) {
         int finalResult = 0;
 
@@ -787,6 +786,7 @@ public class Main {
         return finalResult;
     }
 
+    //util functions below
     private String readFile(String filename) {
         File f = new File(filename);
         assert f.exists();
@@ -816,6 +816,15 @@ public class Main {
         }
 
         return sb.toString();
+    }
+
+    private char[][] createGrid(String input) {
+        String[] strArr = input.replace("\r", "").split("\n");
+        char[][] grid = new char[strArr.length][];
+        for (int i = 0; i < strArr.length; i++) {
+            grid[i] = strArr[i].toCharArray();
+        }
+        return grid;
     }
 
     private class RuleSet{
