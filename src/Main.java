@@ -4,6 +4,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.ClientInfoStatus;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,13 +21,11 @@ public class Main {
     }
 
     private Long sumAllResults(Set<Long> results){
-        long sum = 0;
+        AtomicLong sum = new AtomicLong(0);
 
-        for (Long result : results) {
-            sum += result;
-        }
+        results.parallelStream().forEach(sum::addAndGet);
 
-        return sum;
+        return sum.get();
     }
 
     private Set<Long> findTrueEquations(HashMap<Long, ArrayList<Long>> possibleEquations) {
@@ -35,12 +34,12 @@ public class Main {
         for (Long key : possibleEquations.keySet()) {
             ArrayList<Long> value = possibleEquations.get(key);
 
-            HashSet<char[]> operationsList = generatePossibleOperands(value.size());
+            HashSet<List<Character>> operationsList = generatePossibleOperands(value.size());
 
             operationsList.parallelStream().forEach(operationSequence -> {
                 long result = value.getFirst();
                 for (int i = 1; i < value.size(); i++) {
-                    result = doOperation(result, value.get(i), operationSequence[i-1]);
+                    result = doOperation(result, value.get(i), operationSequence.get(i-1));
                 }
 
                 if (result == key) {
@@ -52,22 +51,12 @@ public class Main {
         return results;
     }
 
-    private HashSet<char[]> generatePossibleOperands(int len){
-        HashSet<char[]> result = new HashSet<>();
-
+    private HashSet<List<Character>> generatePossibleOperands(int len){
         HashSet<List<Character>> sequenceSet = new HashSet<>();
 
         generateCharacterCombinationsRecursive(new char[]{'+', '*', '|'}, len-1, new ArrayList<>(), sequenceSet);
 
-        for (List<Character> sequence : sequenceSet) {
-            char[] tempArray = new char[sequence.size()];
-            for (int i = 0; i < sequence.size(); i++) {
-                tempArray[i] = sequence.get(i);
-            }
-            result.add(tempArray);
-        }
-
-        return result;
+        return sequenceSet;
     }
 
     private void generateCharacterCombinationsRecursive(char[] array, int length, List<Character> current, HashSet<List<Character>> results) {
