@@ -30,7 +30,7 @@ public class Main {
     private Set<Long> findTrueEquations(HashMap<Long, ArrayList<Long>> possibleEquations) {
         Set<Long> results = Collections.synchronizedSet(new HashSet<>());
 
-        for (Long key : possibleEquations.keySet()) {
+        possibleEquations.keySet().parallelStream().forEach(key -> {
             ArrayList<Long> value = possibleEquations.get(key);
 
             HashSet<List<Character>> operationsList = generatePossibleOperands(value.size());
@@ -45,7 +45,7 @@ public class Main {
                     results.add(key);
                 }
             });
-        }
+        });
 
         return results;
     }
