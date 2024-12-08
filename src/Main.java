@@ -910,6 +910,11 @@ public class Main {
 
             sb.append((char) res);
         }
+        try {
+            fr.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         return sb.toString();
     }
