@@ -26,7 +26,7 @@ public class Main {
     private Set<Coordinates> locateAllAntinodes(Map<Character, ArrayList<Coordinates>> antennaLocations, int gridMax) {
         Set<Coordinates> allAntinodes = Collections.synchronizedSet(new HashSet<>());
 
-        antennaLocations.keySet().parallelStream().forEach(key -> {
+        antennaLocations.keySet().forEach(key -> {
             ArrayList<Coordinates> antennas = antennaLocations.get(key);
             for (Coordinates c1 : antennas) {
                 for (Coordinates c2 : antennas){
@@ -34,44 +34,38 @@ public class Main {
                         continue;
                     }
 
-                    int xDistance = Math.abs((c1.x-c2.x));
-                    int yDistance = Math.abs((c1.y-c2.y));
+                    int xDistance = c1.x-c2.x;
+                    int yDistance = c1.y-c2.y;
 
-                    int positivePossibleX;
-                    int positivePossibleY;
-                    int negativePossibleX;
-                    int negativePossibleY;
+                    Coordinates combo = new Coordinates(c1.y+yDistance, c1.x+xDistance);
 
-                    if (c1.x < c2.x) {
-                        negativePossibleX = c1.x-(xDistance);
-                        positivePossibleX = c2.x+(xDistance);
-                    } else {
-                        negativePossibleX = c2.x-(xDistance);
-                        positivePossibleX = c1.x+(xDistance);
-                    }
-
-                    if (c1.y < c2.y) {
-                        negativePossibleY = c1.y-(yDistance);
-                        positivePossibleY = c2.y+(yDistance);
-                    } else {
-                        negativePossibleY = c2.y-(yDistance);
-                        positivePossibleY = c1.y+(yDistance);
-                    }
-
-                    Coordinates positiveCombo = new Coordinates(positivePossibleY, positivePossibleX);
-                    Coordinates negativeCombo = new Coordinates(negativePossibleY, negativePossibleX);
-
-                    if (positiveCombo.x < gridMax && positiveCombo.y < gridMax) {
-                        allAntinodes.add(positiveCombo);
-                    }
-                    if (negativeCombo.x > 0 && negativeCombo.y > 0) {
-                        allAntinodes.add(negativeCombo);
+                    if (combo.x < gridMax && combo.y < gridMax && combo.x >= 0 && combo.y >= 0){
+                        allAntinodes.add(combo);
                     }
                 }
             }
         });
 
-        return allAntinodes;
+        return filterOverlaps(allAntinodes);
+    }
+
+    private HashSet<Coordinates> filterOverlaps(Set<Coordinates> set) {
+        HashSet<Coordinates> returnValue = new HashSet<>();
+
+        for (Coordinates c1 : set) {
+            boolean tbA = true;
+            for (Coordinates c2 : returnValue) {
+                if (c2.x == c1.x && c2.y == c1.y) {
+                    tbA = false;
+                    break;
+                }
+            }
+            if (tbA) {
+                returnValue.add(c1);
+            }
+        }
+
+        return returnValue;
     }
 
     private Map<Character, ArrayList<Coordinates>> locateAllAntennas(char[][] grid, HashSet<Character> frequencies){
@@ -912,6 +906,14 @@ public class Main {
             grid[i] = strArr[i].toCharArray();
         }
         return grid;
+    }
+
+    private void printGrid(char[][] grid) {
+        System.out.println("Grid: ");
+        for(char[] line : grid){
+            System.out.println(Arrays.toString(line));
+        }
+        System.out.println();
     }
 
     private class RuleSet{
