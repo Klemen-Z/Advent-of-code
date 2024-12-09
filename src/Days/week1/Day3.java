@@ -1,4 +1,4 @@
-package Days;
+package Days.week1;
 
 import java.util.ArrayList;
 import java.util.Arrays;
