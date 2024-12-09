@@ -13,22 +13,120 @@ public class Main {
         String input = main.readFile("input.txt");
 
         ArrayList<FileBlock> inputWSpacing = main.calculateSpacing(input);
-        ArrayList<FileBlock> fixedInput = main.moveBlocks(inputWSpacing);
-        System.out.println(main.calculateChecksum(fixedInput));
+        ArrayList<FileBlockGroup> fileBlockGroups = main.calculateFileBlockGroups(inputWSpacing);
+        ArrayList<FileBlockGroup> fixedInput = main.moveWholeBlocks(fileBlockGroups);
+        //main.visualizeGroups(fixedInput);
+        System.out.println(main.calculateChecksumGroups(fixedInput));
 
         final long end = System.currentTimeMillis();
         System.out.println("Time taken: " + (end - start) + " ms");
     }
 
     //day 9 methods below
-    private long calculateChecksum(ArrayList<FileBlock> input) {
+    private long calculateChecksumSingles(ArrayList<FileBlock> input) {
         long sum = 0;
 
         for (int i = 0; i < input.size(); i++) {
+            if (input.get(i).id == -1){
+                continue;
+            }
             sum += ((long)input.get(i).id*i);
         }
 
         return sum;
+    }
+
+    private long calculateChecksumGroups(ArrayList<FileBlockGroup> input) {
+        long sum = 0;
+
+        int position = 0;
+
+        for (FileBlockGroup fileBlockGroup : input) {
+            if (fileBlockGroup.id == -1) {
+                position += fileBlockGroup.size;
+                continue;
+            }
+            for (int j = 0; j < fileBlockGroup.size; j++) {
+                sum += ((long) fileBlockGroup.id * position);
+                position++;
+            }
+        }
+
+        return sum;
+    }
+
+    private ArrayList<FileBlockGroup> moveWholeBlocks(ArrayList<FileBlockGroup> input) {
+        int currentID;
+        int index = input.size()-1;
+
+        do {
+            currentID = input.get(index).id;
+            index--;
+        } while (currentID == -1);
+
+        while(true){
+            if (currentID == 0) {
+                return input;
+            }
+
+            int index1 = input.size()-1;
+            int index2 = 0;
+
+            while (true) {
+                if (index1 < 0 || index2 >= index1) {
+                    break;
+                }
+
+                FileBlockGroup fileBlockGroup1 = input.get(index1);
+
+                if (fileBlockGroup1.id != currentID) {
+                    index1--;
+                    continue;
+                }
+
+                if (index2 > input.size()-1) {
+                    break;
+                }
+
+                FileBlockGroup fileBlockGroup2 = input.get(index2);
+
+                if (fileBlockGroup2.id == -1 && fileBlockGroup2.size >= fileBlockGroup1.size) {
+                    input.set(index1, new FileBlockGroup(-1, fileBlockGroup1.size));
+                    input.add(index2, fileBlockGroup1);
+                    fileBlockGroup2.size -= fileBlockGroup1.size;
+                    break;
+                }
+
+                index2++;
+            }
+            currentID--;
+        }
+    }
+
+    private ArrayList<FileBlockGroup> moveBlock(ArrayList<FileBlockGroup> input, int currentID) {
+
+
+        return moveBlock(input, currentID-1);
+    }
+
+    private ArrayList<FileBlockGroup> calculateFileBlockGroups(ArrayList<FileBlock> input) {
+        ArrayList<FileBlockGroup> result = new ArrayList<>();
+
+        int count = 0;
+        int prevID = -1;
+
+        for (FileBlock fileBlock : input) {
+            if (prevID != fileBlock.id) {
+                result.add(new FileBlockGroup(prevID, count));
+                prevID = fileBlock.id;
+                count = 0;
+            }
+            count++;
+        }
+        result.add(new FileBlockGroup(prevID, count));
+        result.removeFirst();
+
+        return result;
     }
 
     private ArrayList<FileBlock> moveBlocks(ArrayList<FileBlock> input) {
@@ -70,6 +168,16 @@ public class Main {
             }
         }
         return returnVal;
+    }
+
+    private void visualizeGroups(ArrayList<FileBlockGroup> groups) {
+        System.out.println();
+        for (FileBlockGroup fileBlockGroup : groups) {
+            for (int i = 0; i < fileBlockGroup.size; i++) {
+                System.out.print(fileBlockGroup.id + " ");
+            }
+        }
+        System.out.println();
     }
 
     //day 8 methods below
@@ -1003,6 +1111,16 @@ public class Main {
 
         FileBlock(int id){
             this.id = id;
+        }
+    }
+
+    private class FileBlockGroup{
+        int id;
+        int size;
+
+        FileBlockGroup(int id, int size){
+            this.id = id;
+            this.size = size;
         }
     }
 }
