@@ -16,7 +16,7 @@ public class Main {
         char[][] grid = createGrid(input);
         ArrayList<HikingTrail> trails = day10.searchForTrailStarts(grid);
         day10.findAllPaths(trails, grid);
-        System.out.println(day10.getAllScores(trails));
+        System.out.println(day10.getAllScores(trails, false));
 
         final long end = System.currentTimeMillis();
         System.out.println("Time taken: " + (end - start) + " ms");

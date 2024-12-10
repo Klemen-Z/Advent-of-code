@@ -1,16 +1,21 @@
 package Days.week2;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Day10 {
-    public int getAllScores(ArrayList<HikingTrail> trails) {
-        int score = 0;
+    public int getAllScores(ArrayList<HikingTrail> trails, boolean part1) {
+        AtomicInteger score = new AtomicInteger();
 
-        for (HikingTrail trail : trails) {
-            score += trail.getScoreCalcPart2();
-        }
+        trails.parallelStream().forEach(trail -> {
+            if (part1){
+                score.addAndGet(trail.getScoreCalcPart1());
+                return;
+            }
+            score.addAndGet(trail.getScoreCalcPart2());
+        });
 
-        return score;
+        return score.get();
     }
 
     public void findAllPaths(ArrayList<HikingTrail> trails, char[][] grid){
