@@ -3,6 +3,7 @@ package Days.week2;
 import Main.Main;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Day10 {
@@ -131,14 +132,15 @@ public class Day10 {
             ArrayList<Coordinates> appeared = new ArrayList<>();
             for (ArrayList<Coordinates> path : paths) {
                 Coordinates last = path.getLast();
-                boolean found = false;
-                for (Coordinates coordinates : appeared) {
+
+                AtomicBoolean found = new AtomicBoolean(false);
+                appeared.parallelStream().forEach(coordinates -> {
                     if (coordinates.x == last.x && coordinates.y == last.y) {
-                        found = true;
-                        break;
+                        if (found.get()) return;
+                        found.set(true);
                     }
-                }
-                if (found) continue;
+                });
+                if (found.get()) continue;
 
                 if (path.getLast().val == 9){
                     score++;
