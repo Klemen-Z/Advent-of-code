@@ -138,7 +138,9 @@ public class Day10 {
                         break;
                     }
                 }
-                if (path.getLast().val == 9 && !found){
+                if (found) continue;
+
+                if (path.getLast().val == 9){
                     score++;
                     appeared.add(last);
                 }
@@ -147,13 +149,7 @@ public class Day10 {
         }
 
         public int getScoreCalcPart2(){
-            int score = 0;
-            for (ArrayList<Coordinates> path : paths) {
-                if (path.getLast().val == 9){
-                    score++;
-                }
-            }
-            return score;
+            return paths.size();
         }
     }
     public class Coordinates{
