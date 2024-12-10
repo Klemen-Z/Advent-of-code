@@ -21,7 +21,7 @@ public class Day8 {
                     int tempYDist = 0;
 
                     if (part1){
-                        Coordinates combo = new Coordinates(c1.y+yDistance, c1.x+xDistance);
+                        Coordinates combo = new Coordinates(c1.y + yDistance, c1.x + xDistance);
                         if (combo.x < gridMax && combo.y < gridMax && combo.x >= 0 && combo.y >= 0){
                             allAntinodes.add(combo);
                         }
@@ -29,7 +29,7 @@ public class Day8 {
                     }
 
                     while(true){
-                        Coordinates combo = new Coordinates(c1.y+tempYDist, c1.x+tempXDist);
+                        Coordinates combo = new Coordinates(c1.y + tempYDist, c1.x + tempXDist);
                         if (combo.x < gridMax && combo.y < gridMax && combo.x >= 0 && combo.y >= 0){
                             allAntinodes.add(combo);
                         } else {
