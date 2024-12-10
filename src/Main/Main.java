@@ -1,5 +1,7 @@
-import Days.week2.Day10;
-import Days.week2.Day10.*;
+package Main;
+
+import Days.week1.*;
+import Days.week2.*;
 
 import java.io.File;
 import java.io.FileReader;
@@ -12,11 +14,8 @@ public class Main {
         Day10 day10 = new Day10();
         Main main = new Main();
         String input = readFile("input.txt");
-
-        char[][] grid = createGrid(input);
-        ArrayList<HikingTrail> trails = day10.searchForTrailStarts(grid);
-        day10.findAllPaths(trails, grid);
-        System.out.println(day10.getAllScores(trails, false));
+;
+        day10.solve(input,true);
 
         final long end = System.currentTimeMillis();
         System.out.println("Time taken: " + (end - start) + " ms");
@@ -53,7 +52,7 @@ public class Main {
         return sb.toString();
     }
 
-    private static char[][] createGrid(String input) {
+    public static char[][] createGrid(String input) {
         String[] strArr = input.replace("\r", "").split("\n");
         char[][] grid = new char[strArr.length][];
         for (int i = 0; i < strArr.length; i++) {

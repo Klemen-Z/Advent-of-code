@@ -1,9 +1,20 @@
 package Days.week2;
 
+import Main.Main;
+
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Day10 {
+
+    public void solve(String input,boolean part1) {
+        char[][] grid = Main.createGrid(input.replaceAll("\r", ""));
+
+        ArrayList<HikingTrail> trails = searchForTrailStarts(grid);
+        findAllPaths(trails, grid);
+        System.out.println("Total Score of all trails: "+ getAllScores(trails, part1));
+    }
+
     public int getAllScores(ArrayList<HikingTrail> trails, boolean part1) {
         AtomicInteger score = new AtomicInteger();
 
@@ -60,8 +71,6 @@ public class Day10 {
                 index1++;
             }
         }
-
-        System.out.println("paths generated for trail: " + trail.id);
     }
 
     public ArrayList<Coordinates> checkSurroundingSquares (Coordinates prevCoordinates, Coordinates coordinates,char[][] grid) {

@@ -1,8 +1,18 @@
 package Days.week2;
 
+import Main.Main;
+
 import java.util.*;
 
 public class Day8 {
+    public void solve(String input, boolean part1) {
+        char[][] grid = Main.createGrid(input.replaceAll("\r", ""));
+
+        HashSet<Character> uniqueFrequencies = getFrequencies(input);
+        Map<Character, ArrayList<Coordinates>> antennaLocations = locateAllAntennas(grid, uniqueFrequencies);
+        System.out.println("Amount of antinodes: " + locateAllAntinodes(antennaLocations, grid.length, part1).size());
+    }
+
     public Set<Coordinates> locateAllAntinodes(Map<Character, ArrayList<Coordinates>> antennaLocations, int gridMax, boolean part1) {
         Set<Coordinates> allAntinodes = Collections.synchronizedSet(new HashSet<>());
 

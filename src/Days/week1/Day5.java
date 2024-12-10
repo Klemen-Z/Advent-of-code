@@ -3,6 +3,22 @@ package Days.week1;
 import java.util.ArrayList;
 
 public class Day5 {
+    public void solve(String input, boolean part1) {
+        String[] mainArr = input.replace("\r", "").split("\n\n");
+        ArrayList<RuleSet> rules = compileRules(mainArr[0]);
+        ArrayList<ArrayList<Integer>> intArrays = compileArrays(mainArr[1]);
+
+        ArrayList<ArrayList<Integer>> correctIntArrs;
+        if (part1){
+            correctIntArrs = getCorrectlyOrderedArrs(intArrays, rules);
+        } else {
+            ArrayList<ArrayList<Integer>> wrongIntArrs = getWronglyOrderedArrs(intArrays, rules);
+            correctIntArrs = fixOrder(wrongIntArrs, rules);
+        }
+
+        System.out.println("The sum of the middle pages: " + addMiddleNumbers(correctIntArrs));
+    }
+
     public int addMiddleNumbers(ArrayList<ArrayList<Integer>> correctIntArrs) {
         int count = 0;
 
