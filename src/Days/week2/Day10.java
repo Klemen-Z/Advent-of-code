@@ -135,8 +135,8 @@ public class Day10 {
 
                 AtomicBoolean found = new AtomicBoolean(false);
                 appeared.parallelStream().forEach(coordinates -> {
+                    if (found.get()) return;
                     if (coordinates.x == last.x && coordinates.y == last.y) {
-                        if (found.get()) return;
                         found.set(true);
                     }
                 });
