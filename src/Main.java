@@ -473,11 +473,8 @@ public class Main {
         return ruleSets;
     }
 
-    private int parseForWord(String word, String[] input) {
-        char[][] grid = new char[input.length][];
-        for (int i = 0; i < input.length; i++) {
-            grid[i] = input[i].toCharArray();
-        }
+    private int parseForXOfWord(String word,String input) {
+        char[][] grid = createGrid(input);
 
         int count = 0;
 
@@ -528,6 +525,105 @@ public class Main {
                         || tempStringDiagonal1Reverse.equals(word) && tempStringDiagonal2.equals(word)
                         || tempStringDiagonal1.equals(word) && tempStringDiagonal2Reverse.equals(word)) {
                     count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    private int parseForWord(String word, String input) {
+        char[][] grid = createGrid(input);
+
+        int count = 0;
+
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[i].length; j++) {
+                int nums = 0;
+                int forwardNum = 0;
+                int reverseNum = 0;
+
+                //regular
+                while(nums < word.length()){
+                    int[] prevVals = new int[]{forwardNum, reverseNum};
+
+                    try{
+                        if (grid[i][j+nums] == word.charAt(nums)) forwardNum++;
+                    } catch (IndexOutOfBoundsException ignored){}
+
+                    try{
+                        if (grid[i][j-nums] == word.charAt(nums)) reverseNum++;
+                    } catch (IndexOutOfBoundsException ignored){}
+
+                    if (forwardNum == word.length()) count++;
+                    if (reverseNum == word.length()) count++;
+                    if (reverseNum == prevVals[1] && prevVals[0] == forwardNum) break;
+                    nums++;
+                }
+
+                nums = 0;
+                forwardNum = 0;
+                reverseNum = 0;
+
+                //vertical
+                while(nums < word.length()){
+                    int[] prevVals = new int[]{forwardNum, reverseNum};
+
+                    try{
+                        if (grid[i+nums][j] == word.charAt(nums)) forwardNum++;
+                    } catch (IndexOutOfBoundsException ignored){}
+
+                    try{
+                        if (grid[i-nums][j] == word.charAt(nums)) reverseNum++;
+                    } catch (IndexOutOfBoundsException ignored){}
+
+                    if (forwardNum == word.length()) count++;
+                    if (reverseNum == word.length()) count++;
+                    if (reverseNum == prevVals[1] && prevVals[0] == forwardNum) break;
+                    nums++;
+                }
+
+                nums = 0;
+                forwardNum = 0;
+                reverseNum = 0;
+
+                //diagonal /
+                while(nums < word.length()){
+                    int[] prevVals = new int[]{forwardNum, reverseNum};
+
+                    try{
+                        if (grid[i+nums][j+nums] == word.charAt(nums)) forwardNum++;
+                    } catch (IndexOutOfBoundsException ignored){}
+
+                    try{
+                        if (grid[i+nums][j-nums] == word.charAt(nums)) reverseNum++;
+                    } catch (IndexOutOfBoundsException ignored){}
+
+                    if (forwardNum >= word.length()) count++;
+                    if (reverseNum >= word.length()) count++;
+                    if (reverseNum == prevVals[1] && prevVals[0] == forwardNum) break;
+                    nums++;
+                }
+
+                nums = 0;
+                forwardNum = 0;
+                reverseNum = 0;
+
+                //diagonal \
+                while(nums < word.length()){
+                    int[] prevVals = new int[]{forwardNum, reverseNum};
+
+                    try{
+                        if (grid[i-nums][j+nums] == word.charAt(nums)) forwardNum++;
+                    } catch (IndexOutOfBoundsException ignored){}
+
+                    try{
+                        if (grid[i-nums][j-nums] == word.charAt(nums)) reverseNum++;
+                    } catch (IndexOutOfBoundsException ignored){}
+
+                    if (forwardNum == word.length()) count++;
+                    if (reverseNum == word.length()) count++;
+                    if (reverseNum == prevVals[1] && prevVals[0] == forwardNum) break;
+                    nums++;
                 }
             }
         }
