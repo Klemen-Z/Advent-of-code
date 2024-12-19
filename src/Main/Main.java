@@ -58,7 +58,7 @@ public class Main {
         for (int i = 0; i < strArr.length; i++) {
             grid[i] = strArr[i].toCharArray();
         }
-        return grid;
+        return grid.clone();
     }
 
     private static void printGrid(char[][] grid) {
