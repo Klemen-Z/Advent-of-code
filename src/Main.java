@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.ClientInfoStatus;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,11 +13,103 @@ public class Main {
         Main main = new Main();
         String input = main.readFile("input.txt");
 
-        char[][] grid = main.createGrid(input);
-        System.out.println(main.obstacleLoopPositionCount(grid));
+        System.out.println(main.sumAllResults(main.findTrueEquations(main.getPossibleEquations(input))));
 
         final long end = System.currentTimeMillis();
         System.out.println("Time taken: " + (end - start) + " ms");
+    }
+
+    private Long sumAllResults(Set<Long> results){
+        long sum = 0;
+
+        for (Long result : results) {
+            sum += result;
+        }
+
+        return sum;
+    }
+
+    private Set<Long> findTrueEquations(HashMap<Long, ArrayList<Long>> possibleEquations) {
+        Set<Long> results = Collections.synchronizedSet(new HashSet<>());
+
+        for (Long key : possibleEquations.keySet()) {
+            ArrayList<Long> value = possibleEquations.get(key);
+
+            HashSet<char[]> operationsList = generatePossibleOperands(value.size());
+
+            operationsList.parallelStream().forEach(operationSequence -> {
+                long result = value.getFirst();
+                for (int i = 1; i < value.size(); i++) {
+                    result = doOperation(result, value.get(i), operationSequence[i-1]);
+                }
+
+                if (result == key) {
+                    results.add(key);
+                }
+            });
+        }
+
+        return results;
+    }
+
+    private HashSet<char[]> generatePossibleOperands(int len){
+        HashSet<char[]> result = new HashSet<>();
+
+        HashSet<List<Character>> sequenceSet = new HashSet<>();
+
+        generateCharacterCombinationsRecursive(new char[]{'+', '*', '|'}, len-1, new ArrayList<>(), sequenceSet);
+
+        for (List<Character> sequence : sequenceSet) {
+            char[] tempArray = new char[sequence.size()];
+            for (int i = 0; i < sequence.size(); i++) {
+                tempArray[i] = sequence.get(i);
+            }
+            result.add(tempArray);
+        }
+
+        return result;
+    }
+
+    private void generateCharacterCombinationsRecursive(char[] array, int length, List<Character> current, HashSet<List<Character>> results) {
+        if (current.size() >= length) {
+            results.add(new ArrayList<>(current));
+            return;
+        }
+
+        for (char c : array) {
+            current.add(c);
+            generateCharacterCombinationsRecursive(array, length, current, results);
+            current.removeLast(); // Backtrack
+        }
+    }
+
+    private Long doOperation(Long num1, Long num2, char operand){
+        return switch (operand) {
+            case '+' -> num1 + num2;
+            case '*' -> num1 * num2;
+            case '|' -> Long.parseLong((num1+""+num2));
+            default -> throw new RuntimeException("Unknown operation: " + operand);
+        };
+    }
+
+    private HashMap<Long, ArrayList<Long>> getPossibleEquations(String input) {
+        HashMap<Long, ArrayList<Long>> possibleEquations = new HashMap<>();
+
+        String[] arr = input.replace("\r", "").split("\n");
+
+        for (String s : arr) {
+            String[] tempArr = s.split(": ");
+            Long key = Long.parseLong(tempArr[0]);
+            ArrayList<Long> value = new ArrayList<>();
+
+            tempArr = tempArr[1].split(" ");
+            for (String str : tempArr) {
+                value.add(Long.parseLong(str));
+            }
+            possibleEquations.put(key, value);
+        }
+
+        return possibleEquations;
     }
 
     private int obstacleLoopPositionCount(char[][] grid) {
@@ -38,9 +131,7 @@ public class Main {
             }
 
             tempGrid[y][x] = '#';
-
             if (uniqueGuardMoveCount(tempGrid, tempGuardPos) == -1) possiblePositions.add(guardCoordinate);
-
             tempGrid[y][x] = '.';
         });
 
