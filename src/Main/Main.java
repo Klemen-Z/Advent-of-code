@@ -14,7 +14,7 @@ public class Main {
         Day10 day10 = new Day10();
         Main main = new Main();
         String input = readFile("input.txt");
-;
+
         day10.solve(input,true);
 
         final long end = System.currentTimeMillis();
@@ -59,13 +59,5 @@ public class Main {
             grid[i] = strArr[i].toCharArray();
         }
         return grid.clone();
-    }
-
-    private static void printGrid(char[][] grid) {
-        System.out.println("Grid: ");
-        for(char[] line : grid){
-            System.out.println(Arrays.toString(line));
-        }
-        System.out.println();
     }
 }
