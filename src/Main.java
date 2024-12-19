@@ -10,11 +10,9 @@ import java.util.regex.Pattern;
 
 public class Main {
     public static void main(String[] args) {
-        String input = readFile("input.txt");
-
-        String word = "xmas";
-
         final long start = System.currentTimeMillis();
+        String input = readFile("input.txt");
+        String word = "xmas";
         System.out.println("Found '" + word + "' " + parseForWord(word, input.toLowerCase().replaceAll("\r", "").split("\n")));
         final long end = System.currentTimeMillis();
         System.out.println("Time taken: " + (end - start) + " ms");
@@ -54,7 +52,6 @@ public class Main {
         for (char[] s : tempGrid) {
             String tempString = String.valueOf(s);
             strings.add(tempString);
-            strings.add(reverseWord(tempString));
         }
         return strings;
     }
@@ -63,13 +60,12 @@ public class Main {
         char[][] tempGrid = grid.clone();
         ArrayList<String> strings = new ArrayList<>();
 
-        for (int i = 0; i < (tempGrid[0].length); i++) {
+        for (int i = 0; i < tempGrid[0].length; i++) {
             StringBuilder tempString = new StringBuilder();
             for (char[] chars : tempGrid) {
                 tempString.append(chars[i]);
             }
             strings.add(tempString.toString());
-            strings.add(reverseWord(tempString.toString()));
         }
 
         return strings;
@@ -88,20 +84,20 @@ public class Main {
                 tempNum++;
             }
             strings.add(tempString.toString());
-            strings.add(reverseWord(tempString.toString()));
         }
 
         for (int i = (tempGrid[tempGrid.length-1].length-1); i >= 0; i--) {
             StringBuilder tempString = new StringBuilder();
             int tempNum = 0;
 
-            for (int j = tempGrid.length-1; j >= 0; j--) {
-                if (i+tempNum >= tempGrid[j].length) {break;}
-                tempString.append(tempGrid[j][i + tempNum]);
+            for (char[] chars : tempGrid) {
+                if (i + tempNum >= chars.length) {
+                    break;
+                }
+                tempString.append(chars[i + tempNum]);
                 tempNum++;
             }
             strings.add(tempString.toString());
-            strings.add(reverseWord(tempString.toString()));
         }
 
         return strings;
@@ -118,6 +114,18 @@ public class Main {
 
         while (matcher.find()) {
             count++;
+        }
+
+        //reverse the word and search the string again
+        pattern = Pattern.compile(reverseWord(regex));
+        matcher = pattern.matcher(str.toLowerCase());
+
+        while (matcher.find()) {
+            count++;
+        }
+
+        if (count == 0){
+            System.out.println(str);
         }
 
         return count;
