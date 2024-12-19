@@ -13,7 +13,7 @@ public class Main {
         final long start = System.currentTimeMillis();
         String input = readFile("input.txt");
         String word = "mas";
-        System.out.println("Found an X of the word '" + word + "' " + parseForWord(word, input.toLowerCase().replaceAll("\r", "").split("\n")));
+        System.out.println("Found an X of the word '" + word + "' " + parseForWord(word, input.toLowerCase().replaceAll("\r", "").split("\n")) + " times");
         final long end = System.currentTimeMillis();
         System.out.println("Time taken: " + (end - start) + " ms");
     }
@@ -31,45 +31,47 @@ public class Main {
                 if (grid[i][j] != word.charAt(word.length()/2)) continue;
 
                 int nums = 0;
-                StringBuilder tempStringDiagonal1 = new StringBuilder();
-                StringBuilder tempStringDiagonal2 = new StringBuilder();
+                StringBuilder tempDiagonal1 = new StringBuilder();
+                StringBuilder tempDiagonal2 = new StringBuilder();
 
                 while(nums <= word.length()/2){
                     try{
-                        tempStringDiagonal1.append(grid[i+nums][j+nums]);
+                        tempDiagonal1.append(grid[i+nums][j+nums]);
                     } catch (IndexOutOfBoundsException ignored) {}
 
                     try {
-                        tempStringDiagonal2.append(grid[i+nums][j-nums]);
+                        tempDiagonal2.append(grid[i+nums][j-nums]);
                     } catch (IndexOutOfBoundsException ignored) {}
 
                     try{
                         if (nums != 0){
-                            tempStringDiagonal1.insert(0, (grid[i-nums][j-nums]));
+                            tempDiagonal1.insert(0, (grid[i-nums][j-nums]));
                         }
                     } catch (IndexOutOfBoundsException ignored) {}
 
                     try {
                         if (nums != 0){
-                            tempStringDiagonal2.insert(0, (grid[i-nums][j+nums]));
+                            tempDiagonal2.insert(0, (grid[i-nums][j+nums]));
                         }
                     } catch (IndexOutOfBoundsException ignored) {}
 
                     nums++;
-
-                    if (word.length()/2 + nums == word.length()) {
-                        break;
-                    }
                 }
 
-                if (tempStringDiagonal1.length() != word.length() || tempStringDiagonal2.length() != word.length()){
+                if (tempDiagonal1.length() != word.length() || tempDiagonal2.length() != word.length()){
                     continue;
                 }
 
-                if (tempStringDiagonal1.toString().equals(word) && tempStringDiagonal2.toString().equals(word)
-                        || tempStringDiagonal1.reverse().toString().equals(word) && tempStringDiagonal2.reverse().toString().equals(word)
-                        || tempStringDiagonal1.reverse().toString().equals(word) && tempStringDiagonal2.toString().equals(word)
-                        || tempStringDiagonal1.toString().equals(word) && tempStringDiagonal2.reverse().toString().equals(word)) {
+                String tempStringDiagonal1 = tempDiagonal1.toString();
+                String tempStringDiagonal2 = tempDiagonal2.toString();
+
+                String tempStringDiagonal1Reverse = tempDiagonal1.reverse().toString();
+                String tempStringDiagonal2Reverse = tempDiagonal2.reverse().toString();
+
+                if (tempStringDiagonal1.equals(word) && tempStringDiagonal2.equals(word)
+                        || tempStringDiagonal1Reverse.equals(word) && tempStringDiagonal2Reverse.equals(word)
+                        || tempStringDiagonal1Reverse.equals(word) && tempStringDiagonal2.equals(word)
+                        || tempStringDiagonal1.equals(word) && tempStringDiagonal2Reverse.equals(word)) {
                     count++;
                 }
             }
