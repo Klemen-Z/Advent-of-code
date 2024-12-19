@@ -3,24 +3,72 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Main {
     public static void main(String[] args) {
-        String[] nums = readFile("nums.txt").replace("\r", "").split("\n");
+        String input = readFile("input.txt");
 
-        ArrayList<ArrayList<Integer>> list1 = new ArrayList<>();
+        String vals = regexMatch(input);
 
-        for (String string : nums) {
-            String[] num = string.split(" ");
-            ArrayList<Integer> list = new ArrayList<>();
-            for (String s : num) {
-                list.add(Integer.parseInt(s));
+        System.out.println(multiplyAllThenAdd(handleDoDont(vals)));
+    }
+
+    private static int multiplyAllThenAdd(ArrayList<String[]> nums){
+        int finalCount = 0;
+
+        for (String[] num : nums) {
+            for (int i = 1; i < num.length; i++) {
+                if (i%2 == 1){
+                    int num1 = Integer.parseInt(num[i]);
+                    int num2 = Integer.parseInt(num[i+1]);
+
+                    finalCount += (num1*num2);
+                }
             }
-            list1.add(list);
+        }
+        return finalCount;
+    }
+
+    private static String regexMatch(String input) {
+        StringBuilder returnVal = new StringBuilder();
+
+        Pattern pattern = Pattern.compile("(mul\\([0-9]{1,3},[0-9]{1,3}\\))|(do\\(\\))|(don't\\(\\))");
+        Matcher matcher = pattern.matcher(input);
+
+        while (matcher.find()) {
+            returnVal.append(matcher.group());
         }
 
-        System.out.println(getSafetyCount(list1));
+        return returnVal.toString();
+    }
+
+    private static ArrayList<String[]> handleDoDont(String input){
+        ArrayList<String> donts = new ArrayList<>(Arrays.asList(input.split("(don't\\(\\))")));
+        ArrayList<String> vals = new ArrayList<>();
+        vals.add(donts.getFirst().replace("do", ""));
+
+        for(int i = 1; i < donts.size(); i++){
+            if (donts.get(i).contains("do()")){
+                String[] tempArr = donts.get(i).split("do\\(\\)");
+                vals.addAll(Arrays.asList(tempArr).subList(1, tempArr.length));
+            }
+        }
+
+        ArrayList<String[]> returnVal = new ArrayList<>();
+
+        for (String val : vals) {
+            returnVal.add(convertMulInstructions(val));
+        }
+
+        return returnVal;
+    }
+
+    private static String[] convertMulInstructions(String input) {
+        return input.replace("m", " ").replace("u", "").replace("l", "").replace("(", "").replace(")", "").replace(",", " ").split(" ");
     }
 
     private static int getSafetyCount(ArrayList<ArrayList<Integer>> list) {
