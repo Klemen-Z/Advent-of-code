@@ -1,5 +1,4 @@
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
@@ -28,14 +27,15 @@ public class Main {
 
         antennaLocations.keySet().forEach(key -> {
             ArrayList<Coordinates> antennas = antennaLocations.get(key);
-            for (Coordinates c1 : antennas) {
-                for (Coordinates c2 : antennas){
+            antennas.parallelStream().forEach(c1 ->{
+                antennas.parallelStream().forEach(c2 -> {
                     if (c1.equals(c2)){
-                        continue;
+                        return;
                     }
 
                     int xDistance = c1.x-c2.x;
                     int yDistance = c1.y-c2.y;
+
                     int tempXDist = 0;
                     int tempYDist = 0;
 
@@ -44,7 +44,7 @@ public class Main {
                         if (combo.x < gridMax && combo.y < gridMax && combo.x >= 0 && combo.y >= 0){
                             allAntinodes.add(combo);
                         }
-                        continue;
+                        return;
                     }
 
                     while(true){
@@ -57,8 +57,8 @@ public class Main {
                         tempXDist += xDistance;
                         tempYDist += yDistance;
                     }
-                }
-            }
+                });
+            });
         });
 
         return filterOverlaps(allAntinodes);
