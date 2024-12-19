@@ -15,7 +15,7 @@ public class Main {
         Main main = new Main();
         String input = readFile("input.txt");
 
-        System.out.println("There are " + main.calculateTotalElements(main.arrangementParse(input), 45) + " stones");
+        System.out.println("There are " + main.calculateTotalElements(main.arrangementParse(input), 75) + " stones");
 
         final long end = System.currentTimeMillis();
         System.out.println("Time taken: " + (end - start) + " ms");
@@ -41,7 +41,8 @@ public class Main {
     public void blink(Long number, int iterations, AtomicLong total, Map<Long, Long[]> knownOps) {
         if (iterations <= 0) {
             return;
-        };
+        }
+
         if (knownOps.containsKey(number)) {
             Long[] nums = knownOps.get(number);
             if (nums.length == 1) {
