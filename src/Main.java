@@ -11,14 +11,90 @@ import java.util.regex.Pattern;
 public class Main {
     public static void main(String[] args) {
         final long start = System.currentTimeMillis();
-        String input = readFile("input.txt");
-        String word = "mas";
-        System.out.println("Found an X of the word '" + word + "' " + parseForWord(word, input.toLowerCase().replaceAll("\r", "").split("\n")) + " times");
+        Main main = new Main();
+        String input = main.readFile("input.txt");
+
+        String[] mainArr = input.replace("\r", "").split("\n\n");
+        ArrayList<RuleSet> rules = main.compileRules(mainArr[0]);
+        ArrayList<ArrayList<Integer>> intArrays = main.compileArrays(mainArr[1]);
+
+        ArrayList<ArrayList<Integer>> correctIntArrs = main.getCorrectlyOrderedArrs(intArrays, rules);
+
+        System.out.println(main.addMiddleNumbers(correctIntArrs));
+
         final long end = System.currentTimeMillis();
         System.out.println("Time taken: " + (end - start) + " ms");
     }
 
-    private static int parseForWord(String word, String[] input) {
+    private int addMiddleNumbers(ArrayList<ArrayList<Integer>> correctIntArrs) {
+        int count = 0;
+
+        for (ArrayList<Integer> arr : correctIntArrs) {
+            count += arr.get((arr.size()/2));
+        }
+
+        return count;
+    }
+
+    private ArrayList<ArrayList<Integer>> getCorrectlyOrderedArrs(ArrayList<ArrayList<Integer>> arrs, ArrayList<RuleSet> rules) {
+        ArrayList<ArrayList<Integer>> intArrs = new ArrayList<>();
+
+        for (ArrayList<Integer> arr : arrs) {
+            boolean fulfillsRules = true;
+            for (RuleSet rule : rules) {
+                if (!arr.contains(rule.first) || !arr.contains(rule.after)){
+                    continue;
+                }
+
+                if (arr.indexOf(rule.first) > arr.indexOf(rule.after)) {
+                    fulfillsRules = false;
+                }
+
+                if (!fulfillsRules) {
+                    break;
+                }
+            }
+            if (fulfillsRules) {
+                intArrs.add(arr);
+            }
+        }
+
+        for (ArrayList<Integer> arr : intArrs) {
+
+        }
+
+        return intArrs;
+    }
+
+    private ArrayList<ArrayList<Integer>> compileArrays(String str) {
+        ArrayList<ArrayList<Integer>> intArraySet = new ArrayList<>();
+
+        String[] strArray = str.split("\n");
+
+        for (String string : strArray) {
+            ArrayList<Integer> tempIntList = new ArrayList<>();
+            String[] tempStrArr = string.split(",");
+            for (String tempInt : tempStrArr) {
+                tempIntList.add(Integer.parseInt(tempInt));
+            }
+            intArraySet.add(tempIntList);
+        }
+
+        return intArraySet;
+    }
+
+    private ArrayList<RuleSet> compileRules(String str){
+        ArrayList<RuleSet> ruleSets = new ArrayList<>();
+        String[] rules = str.replace("|", "\n").split("\n");
+        for (int i = 0; i < rules.length; i++) {
+            if (i%2 == 0){
+                ruleSets.add(new RuleSet(Integer.parseInt(rules[i]), Integer.parseInt(rules[(i+1)])));
+            }
+        }
+        return ruleSets;
+    }
+
+    private int parseForWord(String word, String[] input) {
         char[][] grid = new char[input.length][];
         for (int i = 0; i < input.length; i++) {
             grid[i] = input[i].toCharArray();
@@ -79,7 +155,7 @@ public class Main {
         return count;
     }
 
-    private static int multiplyAllThenAdd(ArrayList<String[]> nums){
+    private int multiplyAllThenAdd(ArrayList<String[]> nums){
         int finalCount = 0;
 
         for (String[] num : nums) {
@@ -95,7 +171,7 @@ public class Main {
         return finalCount;
     }
 
-    private static String regexMatch(String input) {
+    private String regexMatch(String input) {
         StringBuilder returnVal = new StringBuilder();
 
         Pattern pattern = Pattern.compile("(mul\\([0-9]{1,3},[0-9]{1,3}\\))|(do\\(\\))|(don't\\(\\))");
@@ -108,7 +184,7 @@ public class Main {
         return returnVal.toString();
     }
 
-    private static ArrayList<String[]> ignoreDoDont(String input){
+    private ArrayList<String[]> ignoreDoDont(String input){
         String formattedInput = input.replaceAll("[dont']", "");
         ArrayList<String[]> nums = new ArrayList<>();
 
@@ -123,7 +199,7 @@ public class Main {
         return nums;
     }
 
-    private static ArrayList<String[]> handleDoDont(String input){
+    private ArrayList<String[]> handleDoDont(String input){
         ArrayList<String> donts = new ArrayList<>(Arrays.asList(input.split("(don't\\(\\))")));
         ArrayList<String> vals = new ArrayList<>();
         vals.add(donts.getFirst().replace("do", ""));
@@ -145,11 +221,11 @@ public class Main {
         return returnVal;
     }
 
-    private static String[] convertMulInstructions(String input) {
+    private String[] convertMulInstructions(String input) {
         return input.replace("m", " ").replace("u", "").replace("l", "").replace("(", "").replace(")", "").replace(",", " ").split(" ");
     }
 
-    private static int getSafetyCount(ArrayList<ArrayList<Integer>> list) {
+    private int getSafetyCount(ArrayList<ArrayList<Integer>> list) {
         int finalCount = 0;
 
         for (ArrayList<Integer> list1 : list){
@@ -176,7 +252,7 @@ public class Main {
         return finalCount;
     }
 
-    private static boolean checkList(List<Integer> list) {
+    private boolean checkList(List<Integer> list) {
         int prevOp = 0;
         for (int i = 0; i < list.size()-1; i++) {
             int difference = list.get(i)-list.get(i+1);
@@ -192,11 +268,11 @@ public class Main {
         return true;
     }
 
-    private static boolean isSafe(int difference, int prevOp) {
+    private boolean isSafe(int difference, int prevOp) {
         return  difference > 0 && prevOp < 0 || difference < 0 && prevOp > 0 || difference > 3 || difference < -3 || difference == 0;
     }
 
-    private static int getSimilarity(ArrayList<Integer> list1, ArrayList<Integer> list2) {
+    private int getSimilarity(ArrayList<Integer> list1, ArrayList<Integer> list2) {
         int finalResult = 0;
 
         int count = 0;
@@ -214,7 +290,7 @@ public class Main {
         return finalResult;
     }
 
-    private static int getTotalDifference(ArrayList<Integer> list1, ArrayList<Integer> list2) {
+    private int getTotalDifference(ArrayList<Integer> list1, ArrayList<Integer> list2) {
         int finalResult = 0;
 
         list2.sort(Integer::compareTo);
@@ -236,7 +312,7 @@ public class Main {
         return finalResult;
     }
 
-    private static String readFile(String filename) {
+    private String readFile(String filename) {
         File f = new File(filename);
         assert f.exists();
 
@@ -265,5 +341,15 @@ public class Main {
         }
 
         return sb.toString();
+    }
+
+    private class RuleSet{
+        int first;
+        int after;
+
+        RuleSet(int first, int after){
+            this.first = first;
+            this.after = after;
+        }
     }
 }
