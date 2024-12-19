@@ -888,30 +888,21 @@ public class Main {
         assert f.exists();
 
         FileReader fr;
+        StringBuilder sb = new StringBuilder();
 
         try {
             fr = new FileReader(f);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
 
-        StringBuilder sb = new StringBuilder();
-
-        while (true) {
-            int res;
-            try {
-                res = fr.read();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            if (res == -1) {
-                break;
+            while (true) {
+                int res = fr.read();
+                if (res == -1) {
+                    break;
+                }
+                sb.append((char) res);
             }
 
-            sb.append((char) res);
-        }
-        try {
             fr.close();
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
