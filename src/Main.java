@@ -13,10 +13,97 @@ public class Main {
         Main main = new Main();
         String input = main.readFile("input.txt");
 
-        System.out.println(main.sumAllResults(main.findTrueEquations(main.getPossibleEquations(input))));
+        char[][] grid = main.createGrid(input);
+        HashSet<Character> uniqueFrequencies = main.getFrequencies(input);
+        Map<Character, ArrayList<Coordinates>> antennaLocations = main.locateAllAntennas(grid, uniqueFrequencies);
+        System.out.println(main.locateAllAntinodes(antennaLocations, grid.length).size());
 
         final long end = System.currentTimeMillis();
         System.out.println("Time taken: " + (end - start) + " ms");
+    }
+
+    //day 8 methods below
+    private Set<Coordinates> locateAllAntinodes(Map<Character, ArrayList<Coordinates>> antennaLocations, int gridMax) {
+        Set<Coordinates> allAntinodes = Collections.synchronizedSet(new HashSet<>());
+
+        antennaLocations.keySet().parallelStream().forEach(key -> {
+            ArrayList<Coordinates> antennas = antennaLocations.get(key);
+            for (Coordinates c1 : antennas) {
+                for (Coordinates c2 : antennas){
+                    if (c1.equals(c2)){
+                        continue;
+                    }
+
+                    int xDistance = Math.abs((c1.x-c2.x));
+                    int yDistance = Math.abs((c1.y-c2.y));
+
+                    int positivePossibleX;
+                    int positivePossibleY;
+                    int negativePossibleX;
+                    int negativePossibleY;
+
+                    if (c1.x < c2.x) {
+                        negativePossibleX = c1.x-(xDistance);
+                        positivePossibleX = c2.x+(xDistance);
+                    } else {
+                        negativePossibleX = c2.x-(xDistance);
+                        positivePossibleX = c1.x+(xDistance);
+                    }
+
+                    if (c1.y < c2.y) {
+                        negativePossibleY = c1.y-(yDistance);
+                        positivePossibleY = c2.y+(yDistance);
+                    } else {
+                        negativePossibleY = c2.y-(yDistance);
+                        positivePossibleY = c1.y+(yDistance);
+                    }
+
+                    Coordinates positiveCombo = new Coordinates(positivePossibleY, positivePossibleX);
+                    Coordinates negativeCombo = new Coordinates(negativePossibleY, negativePossibleX);
+
+                    if (positiveCombo.x < gridMax && positiveCombo.y < gridMax) {
+                        allAntinodes.add(positiveCombo);
+                    }
+                    if (negativeCombo.x > 0 && negativeCombo.y > 0) {
+                        allAntinodes.add(negativeCombo);
+                    }
+                }
+            }
+        });
+
+        return allAntinodes;
+    }
+
+    private Map<Character, ArrayList<Coordinates>> locateAllAntennas(char[][] grid, HashSet<Character> frequencies){
+        Map<Character, ArrayList<Coordinates>> map = Collections.synchronizedMap(new HashMap<>());
+
+        frequencies.parallelStream().forEach(frequency -> {
+            ArrayList<Coordinates> coordinates = new ArrayList<>();
+            for(int i = 0; i < grid.length; i++){
+                for(int j = 0; j < grid[0].length; j++){
+                    if(grid[i][j] == frequency){
+                        coordinates.add(new Coordinates(i, j));
+                    }
+                }
+            }
+            map.put(frequency, coordinates);
+        });
+
+        return map;
+    }
+
+    private HashSet<Character> getFrequencies(String input) {
+        String tempStr = input;
+        String[] tempArr = tempStr.replace("\r", "").replace("\n", "")
+                .replace(".", "").split("");
+
+        HashSet<Character> frequencies = new HashSet<>();
+
+        for (String s : tempArr) {
+            frequencies.add(s.charAt(0));
+        }
+
+        return frequencies;
     }
 
     //day 7 methods below
@@ -834,6 +921,16 @@ public class Main {
         RuleSet(int first, int after){
             this.first = first;
             this.after = after;
+        }
+    }
+
+    private class Coordinates{
+        int x;
+        int y;
+
+        Coordinates(int y, int x){
+            this.x = x;
+            this.y = y;
         }
     }
 }
