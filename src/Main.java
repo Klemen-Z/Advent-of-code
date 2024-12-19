@@ -3,6 +3,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -26,35 +27,16 @@ public class Main {
         int finalCount = 0;
 
         for (ArrayList<Integer> list1 : list){
-            boolean safe = true;
-            int prevOp = 0;
-            int firstBad = -1;
+            boolean safe = false;
+            int removeInd = 0;
 
-            for (int i = 0; i < list1.size()-1; i++) {
-                int difference = list1.get(i)-list1.get(i+1);
-                if (isSafe(difference, prevOp)) {
-                    firstBad = i+1;
+            while(!safe){
+                ArrayList<Integer> list2 = new ArrayList<>(list1);
+                list2.remove(removeInd);
+                safe = checkList(list2);
+                removeInd++;
+                if (removeInd > list1.size()-1){
                     break;
-                } else {
-                    if (prevOp == 0){
-                        prevOp = difference;
-                    }
-                }
-            }
-
-            if (firstBad != -1) {
-                list1.remove(firstBad);
-
-                for (int i = 0; i < list1.size()-1; i++) {
-                    int difference = list1.get(i)-list1.get(i+1);
-                    if (isSafe(difference, prevOp)) {
-                        safe = false;
-                        break;
-                    } else {
-                        if (prevOp == 0){
-                            prevOp = difference;
-                        }
-                    }
                 }
             }
 
@@ -64,6 +46,22 @@ public class Main {
         }
 
         return finalCount;
+    }
+
+    private static boolean checkList(List<Integer> list) {
+        int prevOp = 0;
+        for (int i = 0; i < list.size()-1; i++) {
+            int difference = list.get(i)-list.get(i+1);
+            if (isSafe(difference, prevOp)) {
+                return false;
+            } else {
+                if (prevOp == 0){
+                    prevOp = difference;
+                }
+            }
+        }
+
+        return true;
     }
 
     private static boolean isSafe(int difference, int prevOp) {
