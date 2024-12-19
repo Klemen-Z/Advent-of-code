@@ -1,8 +1,20 @@
 package Days.week1;
 
+import Main.Main;
+
 import java.util.*;
 
 public class Day6 {
+    public void solve(String input, boolean part1) {
+        char[][] grid = Main.createGrid(input.toLowerCase().replaceAll("\r", ""));
+
+        if (part1){
+            System.out.println("Guard visits " + uniqueGuardMoveCount(grid) + " unique locations");
+        } else {
+            System.out.println("An obstacle can be placed in " + obstacleLoopPositionCount(grid) + " different locations to cause a loop");
+        }
+    }
+
     public int obstacleLoopPositionCount(char[][] grid) {
         List<ArrayList<Integer>> possiblePositions = Collections.synchronizedList(new ArrayList<>());
 

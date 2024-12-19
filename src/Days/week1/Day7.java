@@ -4,6 +4,10 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class Day7 {
+    public void solve(String input, boolean part1){
+        System.out.println("The sum of all valid equations is: " + sumAllResults(findTrueEquations(getPossibleEquations(input), part1)));
+    }
+
     public Long sumAllResults(Set<Long> results){
         AtomicLong sum = new AtomicLong(0);
 
@@ -12,13 +16,13 @@ public class Day7 {
         return sum.get();
     }
 
-    public Set<Long> findTrueEquations(HashMap<Long, ArrayList<Long>> possibleEquations) {
+    public Set<Long> findTrueEquations(HashMap<Long, ArrayList<Long>> possibleEquations, boolean part1) {
         Set<Long> results = Collections.synchronizedSet(new HashSet<>());
 
         possibleEquations.keySet().parallelStream().forEach(key -> {
             ArrayList<Long> value = possibleEquations.get(key);
 
-            HashSet<List<Character>> operationsList = generatePossibleOperands(value.size());
+            HashSet<List<Character>> operationsList = generatePossibleOperands(value.size(), part1);
 
             operationsList.parallelStream().forEach(operationSequence -> {
                 long result = value.getFirst();
@@ -35,12 +39,16 @@ public class Day7 {
         return results;
     }
 
-    public HashSet<List<Character>> generatePossibleOperands(int len){
+    public HashSet<List<Character>> generatePossibleOperands(int len, boolean part1){
         HashSet<List<Character>> sequenceSet = new HashSet<>();
 
         //for part 1 of day seven remove the '|' from the char array being passed to the recursive function.
-        generateCharacterCombinationsRecursive(new char[]{'+', '*', '|'}, len-1, new ArrayList<>(), sequenceSet);
+        if (part1) {
+            generateCharacterCombinationsRecursive(new char[]{'+', '*'}, len-1, new ArrayList<>(), sequenceSet);
+            return sequenceSet;
+        }
 
+        generateCharacterCombinationsRecursive(new char[]{'+', '*', '|'}, len-1, new ArrayList<>(), sequenceSet);
         return sequenceSet;
     }
 

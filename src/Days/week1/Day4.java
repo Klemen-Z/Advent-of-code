@@ -1,8 +1,20 @@
 package Days.week1;
 
-public class Day4 {
-    private int parseForXOfWord(String word, char[][] grid) {
+import Main.Main;
 
+public class Day4 {
+    public void solve(String word, String input, boolean part1) {
+        char[][] grid = Main.createGrid(input.toLowerCase().replaceAll("\r", ""));
+        word = word.toLowerCase();
+
+        if (part1) {
+            System.out.println("Found '" + word + "' " + parseForWord(word, grid) + " times in the grid");
+        } else {
+            System.out.println("Found X of '" + word + "' " + parseForXOfWord(word, grid) + " times in the grid");
+        }
+    }
+
+    public int parseForXOfWord(String word, char[][] grid) {
         int count = 0;
 
         for (int i = 0; i < grid.length; i++) {
@@ -152,6 +164,7 @@ public class Day4 {
                 }
             }
         }
+
         return count;
     }
 }

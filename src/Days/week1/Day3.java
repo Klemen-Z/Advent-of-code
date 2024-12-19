@@ -6,6 +6,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Day3 {
+    public void solve(String input, boolean part1) {
+        String parsedInput = regexMatch(input);
+
+        ArrayList<String[]> matchedStrings;
+        if (part1) {
+            matchedStrings = ignoreDoDont(parsedInput);
+        } else {
+            matchedStrings = handleDoDont(parsedInput);
+        }
+
+        System.out.println("Sum of all active mul() calls is: " + multiplyAllThenAdd(matchedStrings));
+    }
+
     public int multiplyAllThenAdd(ArrayList<String[]> nums){
         int finalCount = 0;
 

@@ -3,6 +3,22 @@ package Days.week2;
 import java.util.ArrayList;
 
 public class Day9 {
+    public void solve(String input, boolean part1){
+        ArrayList<FileBlock> inputWSpacing = calculateSpacing(input);
+        long checksum;
+
+        if (part1){
+            ArrayList<FileBlock> fixedInput = moveBlocks(inputWSpacing);
+            checksum = calculateChecksumSingles(fixedInput);
+        } else {
+            ArrayList<FileBlockGroup> fileBlockGroups = calculateFileBlockGroups(inputWSpacing);
+            ArrayList<FileBlockGroup> fixedInput = moveWholeBlocks(fileBlockGroups);
+            checksum = calculateChecksumGroups(fixedInput);
+        }
+
+        System.out.println("The checksum is: " + checksum);
+    }
+
     public long calculateChecksumSingles(ArrayList<FileBlock> input) {
         long sum = 0;
 
@@ -142,16 +158,6 @@ public class Day9 {
             }
         }
         return returnVal;
-    }
-
-    public void visualizeGroups(ArrayList<FileBlockGroup> groups) {
-        System.out.println();
-        for (FileBlockGroup fileBlockGroup : groups) {
-            for (int i = 0; i < fileBlockGroup.size; i++) {
-                System.out.print(fileBlockGroup.id + " ");
-            }
-        }
-        System.out.println();
     }
 
     public class FileBlock{
