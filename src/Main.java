@@ -4,6 +4,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,17 +15,151 @@ public class Main {
         Main main = new Main();
         String input = main.readFile("input.txt");
 
-        String[] mainArr = input.replace("\r", "").split("\n\n");
-        ArrayList<RuleSet> rules = main.compileRules(mainArr[0]);
-        ArrayList<ArrayList<Integer>> intArrays = main.compileArrays(mainArr[1]);
-
-        ArrayList<ArrayList<Integer>> wrongIntArrs = main.getWronglyOrderedArrs(intArrays, rules);
-        ArrayList<ArrayList<Integer>> correctIntArrs = main.fixOrder(wrongIntArrs, rules);
-
-        System.out.println(main.addMiddleNumbers(correctIntArrs));
+        char[][] grid = main.createGrid(input);
+        System.out.println(main.obstacleLoopPositionCount(grid));
 
         final long end = System.currentTimeMillis();
         System.out.println("Time taken: " + (end - start) + " ms");
+    }
+
+    private int obstacleLoopPositionCount(char[][] grid) {
+        int count = 0;
+
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[i].length; j++) {
+                if (grid[i][j] != '.') {
+                    continue;
+                }
+
+                grid[i][j] = '#';
+                if (uniqueGuardMoveCount(grid) == -1) count++;
+                grid[i][j] = '.';
+            }
+        }
+
+        return count;
+    }
+
+    private int uniqueGuardMoveCount(char[][] grid){
+        boolean isOnMap = true;
+        int guardX = -1, guardY = -1;
+        HashSet<ArrayList<Integer>> previousPositions = new HashSet<>();
+        String direction = "^";
+        int ignoredCount = 0;
+
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[i].length; j++) {
+                if (grid[i][j] == '^'||grid[i][j] == 'v'||grid[i][j] == '>'||grid[i][j] == '<') {
+                    guardX = j;
+                    guardY = i;
+                }
+            }
+        }
+
+        if (guardX < 0) {
+            return 0;
+        }
+
+        while (true) {
+            switch (direction) {
+                case "^" -> {
+                    String symbol = "";
+                    try {
+                        symbol = grid[guardY-1][guardX]+"";
+                    } catch (IndexOutOfBoundsException e) {
+                        isOnMap = false;
+                    }
+
+                    if (!isOnMap){
+                        break;
+                    }
+
+                    if (symbol.equals("#")) {
+                        direction = ">";
+                    } else {
+                        guardY--;
+                    }
+                }
+                case ">" -> {
+                    String symbol = "";
+                    try {
+                        symbol = grid[guardY][guardX+1]+"";
+                    } catch (IndexOutOfBoundsException e) {
+                        isOnMap = false;
+                    }
+
+                    if (!isOnMap){
+                        break;
+                    }
+
+                    if (symbol.equals("#")) {
+                        direction = "v";
+                    } else {
+                        guardX++;
+                    }
+                }
+                case "v" -> {
+                    String symbol = "";
+                    try {
+                        symbol = grid[guardY+1][guardX]+"";
+                    } catch (IndexOutOfBoundsException e) {
+                        isOnMap = false;
+                    }
+
+                    if (!isOnMap){
+                        break;
+                    }
+
+                    if (symbol.equals("#")) {
+                        direction = "<";
+                    } else {
+                        guardY++;
+                    }
+                }
+                case "<" -> {
+                    String symbol = "";
+                    try {
+                        symbol = grid[guardY][guardX-1]+"";
+                    } catch (IndexOutOfBoundsException e) {
+                        isOnMap = false;
+                    }
+
+                    if (!isOnMap){
+                        break;
+                    }
+
+                    if (symbol.equals("#")) {
+                        direction = "^";
+                    } else {
+                        guardX--;
+                    }
+                }
+
+                default -> throw new RuntimeException("unexpected direction: " + direction);
+            }
+
+            if (!isOnMap) {
+                break;
+            }
+
+            ArrayList<Integer> temp = new ArrayList<>();
+            temp.add(guardX);
+            temp.add(guardY);
+
+            if(!previousPositions.add(temp)) ignoredCount++;
+            if (ignoredCount == (previousPositions.size()*2)) return -1;
+        }
+
+        return previousPositions.size();
+    }
+
+    private char[][] createGrid(String input) {
+        String[] strArr = input.replace("\r", "").split("\n");
+        char[][] grid = new char[strArr.length][];
+        for (int i = 0; i < strArr.length; i++) {
+            grid[i] = strArr[i].toCharArray();
+        }
+        return grid;
     }
 
     private int addMiddleNumbers(ArrayList<ArrayList<Integer>> correctIntArrs) {
