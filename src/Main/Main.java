@@ -15,7 +15,7 @@ public class Main {
         Main main = new Main();
         String input = readFile("input.txt");
 
-        System.out.println("There are " + main.calculateTotalElements(main.arrangementParse(input), 75) + " stones");
+        System.out.println("There are " + main.calculateTotalElements(main.arrangementParse(input), 25) + " stones");
 
         final long end = System.currentTimeMillis();
         System.out.println("Time taken: " + (end - start) + " ms");
@@ -23,55 +23,41 @@ public class Main {
 
     //Workshop space below
 
+    //TODO convert so that there is a map that leads to the next value to avoid doing the same calculation multiple times.
+
     public long calculateTotalElements(ArrayList<Long> numbers, int iterations) {
-        AtomicLong totalElements = new AtomicLong();
-        Map<Long, Long> vals = Collections.synchronizedMap(new HashMap<>());
+        AtomicLong totalElements = new AtomicLong(numbers.size());
 
         numbers.forEach(number -> {
-           blink(number, iterations, vals);
-           System.out.println("Blinked");
-        });
-
-        vals.keySet().parallelStream().forEach(number -> {
-           totalElements.addAndGet(vals.get(number));
+            totalElements.addAndGet(blink(number, iterations, 0L));
+            System.out.println("Blinked");
         });
 
         return totalElements.get();
     }
 
-    public static boolean hasEvenNumberOfDigits(long number) {
-        int digitCount = String.valueOf(Math.abs(number)).length();
-        return digitCount % 2 == 0;
-    }
-
-    public static Long[] splitNumber(long number) {
-        String numberStr = number+"";;
-
-        long left = Long.parseLong(numberStr.substring(0, numberStr.length()/2));
-        long right = Long.parseLong(numberStr.substring(numberStr.length()/2));
-
-        return new Long[]{left, right};
-    }
-
-    public void blink(Long number, int iterations, Map<Long, Long> map) {
-        if (!map.containsKey(number)) {
-            map.put(number, 1L);
-        } else {
-            map.replace(number, map.get(number) + 1);
-        }
+    public long blink(Long number, int iterations, long total) {
+        if (iterations <= 0) return total;
 
         if (number == 0){
-            blink(1L, iterations-1, map);
-        } else if (hasEvenNumberOfDigits(number)) {
-            Long[] vals = splitNumber(number);
-            for (Long val : vals) {
-                blink(val, iterations-1, map);
-            }
-        } else {
-            long newNum = number*2024;
-            blink(newNum, iterations-1, map);
+            blink(1L, iterations-1, total);
+            return total;
         }
-        map.replace(number, map.get(number)-1);
+        String numberStr = number+"";
+        if (numberStr.length()%2 == 0) {
+            total++;
+            long left = Long.parseLong(numberStr.substring(0, numberStr.length()/2));
+            long right = Long.parseLong(numberStr.substring(numberStr.length()/2));
+            Long[] vals = new Long[]{left, right};
+            for (Long val : vals) {
+                blink(val, iterations-1, total);
+            }
+            return total;
+        }
+
+        long newNum = number*2024;
+        blink(newNum, iterations-1, total);
+        return total;
     }
 
     public ArrayList<Long> arrangementParse(String input) {
