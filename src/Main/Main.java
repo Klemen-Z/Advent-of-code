@@ -15,7 +15,7 @@ public class Main {
         Main main = new Main();
         String input = readFile("input.txt");
 
-        System.out.println("There are " + main.calculateTotalElements(main.arrangementParse(input), 25) + " stones");
+        System.out.println("There are " + main.calculateTotalElements(main.arrangementParse(input), 75) + " stones");
 
         final long end = System.currentTimeMillis();
         System.out.println("Time taken: " + (end - start) + " ms");
@@ -28,8 +28,9 @@ public class Main {
     public long calculateTotalElements(ArrayList<Long> numbers, int iterations) {
         AtomicLong totalElements = new AtomicLong(numbers.size());
 
-        numbers.forEach(number -> {
-            totalElements.addAndGet(blink(number, iterations, 0L));
+        numbers.parallelStream().forEach(number -> {
+            long sum = blink(number, iterations, 0L);
+            totalElements.addAndGet(sum);
             System.out.println("Blinked");
         });
 
@@ -37,27 +38,30 @@ public class Main {
     }
 
     public long blink(Long number, int iterations, long total) {
-        if (iterations <= 0) return total;
+        long counter = total;
+        if (iterations <= 0) {
+            return counter;
+        };
 
         if (number == 0){
-            blink(1L, iterations-1, total);
-            return total;
+            counter += blink(1L, iterations-1, total);
+            return counter;
         }
         String numberStr = number+"";
         if (numberStr.length()%2 == 0) {
-            total++;
+            counter++;
             long left = Long.parseLong(numberStr.substring(0, numberStr.length()/2));
             long right = Long.parseLong(numberStr.substring(numberStr.length()/2));
             Long[] vals = new Long[]{left, right};
             for (Long val : vals) {
-                blink(val, iterations-1, total);
+                counter += blink(val, iterations-1, total);
             }
-            return total;
+            return counter;
         }
 
         long newNum = number*2024;
-        blink(newNum, iterations-1, total);
-        return total;
+        counter += blink(newNum, iterations-1, total);
+        return counter;
     }
 
     public ArrayList<Long> arrangementParse(String input) {
