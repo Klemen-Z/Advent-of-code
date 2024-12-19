@@ -33,7 +33,6 @@ public class Main {
             for (int i = 0; i < list1.size()-1; i++) {
                 int difference = list1.get(i)-list1.get(i+1);
                 if (isSafe(difference, prevOp)) {
-                    safe = false;
                     firstBad = i+1;
                     break;
                 } else {
@@ -45,7 +44,6 @@ public class Main {
 
             if (firstBad != -1) {
                 list1.remove(firstBad);
-                safe = true;
 
                 for (int i = 0; i < list1.size()-1; i++) {
                     int difference = list1.get(i)-list1.get(i+1);
