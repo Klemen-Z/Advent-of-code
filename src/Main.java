@@ -12,8 +12,8 @@ public class Main {
     public static void main(String[] args) {
         final long start = System.currentTimeMillis();
         String input = readFile("input.txt");
-        String word = "xmas";
-        System.out.println("Found '" + word + "' " + parseForWord(word, input.toLowerCase().replaceAll("\r", "").split("\n")));
+        String word = "mas";
+        System.out.println("Found an X of the word '" + word + "' " + parseForWord(word, input.toLowerCase().replaceAll("\r", "").split("\n")));
         final long end = System.currentTimeMillis();
         System.out.println("Time taken: " + (end - start) + " ms");
     }
@@ -28,92 +28,49 @@ public class Main {
 
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[i].length; j++) {
+                if (grid[i][j] != word.charAt(word.length()/2)) continue;
+
                 int nums = 0;
-                int forwardNum = 0;
-                int reverseNum = 0;
+                StringBuilder tempStringDiagonal1 = new StringBuilder();
+                StringBuilder tempStringDiagonal2 = new StringBuilder();
 
-                //regular
-                while(nums < word.length()){
-                    int[] prevVals = new int[]{forwardNum, reverseNum};
+                while(nums <= word.length()/2){
+                    try{
+                        tempStringDiagonal1.append(grid[i+nums][j+nums]);
+                    } catch (IndexOutOfBoundsException ignored) {}
+
+                    try {
+                        tempStringDiagonal2.append(grid[i+nums][j-nums]);
+                    } catch (IndexOutOfBoundsException ignored) {}
 
                     try{
-                        if (grid[i][j+nums] == word.charAt(nums)) forwardNum++;
-                    } catch (IndexOutOfBoundsException ignored){}
+                        if (nums != 0){
+                            tempStringDiagonal1.insert(0, (grid[i-nums][j-nums]));
+                        }
+                    } catch (IndexOutOfBoundsException ignored) {}
 
-                    try{
-                        if (grid[i][j-nums] == word.charAt(nums)) reverseNum++;
-                    } catch (IndexOutOfBoundsException ignored){}
+                    try {
+                        if (nums != 0){
+                            tempStringDiagonal2.insert(0, (grid[i-nums][j+nums]));
+                        }
+                    } catch (IndexOutOfBoundsException ignored) {}
 
-                    if (forwardNum == word.length()) count++;
-                    if (reverseNum == word.length()) count++;
-                    if (reverseNum == prevVals[1] && prevVals[0] == forwardNum) break;
                     nums++;
+
+                    if (word.length()/2 + nums == word.length()) {
+                        break;
+                    }
                 }
 
-                nums = 0;
-                forwardNum = 0;
-                reverseNum = 0;
-
-                //vertical
-                while(nums < word.length()){
-                    int[] prevVals = new int[]{forwardNum, reverseNum};
-
-                    try{
-                        if (grid[i+nums][j] == word.charAt(nums)) forwardNum++;
-                    } catch (IndexOutOfBoundsException ignored){}
-
-                    try{
-                        if (grid[i-nums][j] == word.charAt(nums)) reverseNum++;
-                    } catch (IndexOutOfBoundsException ignored){}
-
-                    if (forwardNum == word.length()) count++;
-                    if (reverseNum == word.length()) count++;
-                    if (reverseNum == prevVals[1] && prevVals[0] == forwardNum) break;
-                    nums++;
+                if (tempStringDiagonal1.length() != word.length() || tempStringDiagonal2.length() != word.length()){
+                    continue;
                 }
 
-                nums = 0;
-                forwardNum = 0;
-                reverseNum = 0;
-
-                //diagonal /
-                while(nums < word.length()){
-                    int[] prevVals = new int[]{forwardNum, reverseNum};
-
-                    try{
-                        if (grid[i+nums][j+nums] == word.charAt(nums)) forwardNum++;
-                    } catch (IndexOutOfBoundsException ignored){}
-
-                    try{
-                        if (grid[i+nums][j-nums] == word.charAt(nums)) reverseNum++;
-                    } catch (IndexOutOfBoundsException ignored){}
-
-                    if (forwardNum >= word.length()) count++;
-                    if (reverseNum >= word.length()) count++;
-                    if (reverseNum == prevVals[1] && prevVals[0] == forwardNum) break;
-                    nums++;
-                }
-
-                nums = 0;
-                forwardNum = 0;
-                reverseNum = 0;
-
-                //diagonal \
-                while(nums < word.length()){
-                    int[] prevVals = new int[]{forwardNum, reverseNum};
-
-                    try{
-                        if (grid[i-nums][j+nums] == word.charAt(nums)) forwardNum++;
-                    } catch (IndexOutOfBoundsException ignored){}
-
-                    try{
-                        if (grid[i-nums][j-nums] == word.charAt(nums)) reverseNum++;
-                    } catch (IndexOutOfBoundsException ignored){}
-
-                    if (forwardNum == word.length()) count++;
-                    if (reverseNum == word.length()) count++;
-                    if (reverseNum == prevVals[1] && prevVals[0] == forwardNum) break;
-                    nums++;
+                if (tempStringDiagonal1.toString().equals(word) && tempStringDiagonal2.toString().equals(word)
+                        || tempStringDiagonal1.reverse().toString().equals(word) && tempStringDiagonal2.reverse().toString().equals(word)
+                        || tempStringDiagonal1.reverse().toString().equals(word) && tempStringDiagonal2.toString().equals(word)
+                        || tempStringDiagonal1.toString().equals(word) && tempStringDiagonal2.reverse().toString().equals(word)) {
+                    count++;
                 }
             }
         }
