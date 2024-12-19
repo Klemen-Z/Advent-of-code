@@ -135,7 +135,6 @@ public class Day10 {
         public int getScoreCalcPart2(){
             int score = 0;
             for (ArrayList<Coordinates> path : paths) {
-                Coordinates last = path.getLast();
                 if (path.getLast().val == 9){
                     score++;
                 }
