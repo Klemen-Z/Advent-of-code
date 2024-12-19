@@ -20,8 +20,27 @@ public class Main {
     }
 
     //Workshop space below
+    public Set<Region> locateRegions(char[][] grid){
+        Set<Region> regions = new HashSet<>();
+        for (int y = 0; y < grid.length; y++) {
+            for (int x = 1; x < grid[y].length; x++) {
 
+            }
+        }
 
+        return regions;
+    }
+
+    public class Region{
+        int id;
+        char Plant;
+        HashSet<int[]> coordinates = new HashSet<>();
+
+        Region(int id, char Plant){
+            this.id = id;
+            this.Plant = Plant;
+        }
+    }
 
     public ArrayList<Long> arrangementParse(String input) {
         ArrayList<Long> arrangement = new ArrayList<>();
