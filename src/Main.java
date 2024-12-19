@@ -12,13 +12,64 @@ public class Main {
         Main main = new Main();
         String input = main.readFile("input.txt");
 
-        char[][] grid = main.createGrid(input);
-        HashSet<Character> uniqueFrequencies = main.getFrequencies(input);
-        Map<Character, ArrayList<Coordinates>> antennaLocations = main.locateAllAntennas(grid, uniqueFrequencies);
-        System.out.println(main.locateAllAntinodes(antennaLocations, grid.length, false).size());
+        ArrayList<FileBlock> inputWSpacing = main.calculateSpacing(input);
+        ArrayList<FileBlock> fixedInput = main.moveBlocks(inputWSpacing);
+        System.out.println(main.calculateChecksum(fixedInput));
 
         final long end = System.currentTimeMillis();
         System.out.println("Time taken: " + (end - start) + " ms");
+    }
+
+    //day 9 methods below
+    private long calculateChecksum(ArrayList<FileBlock> input) {
+        long sum = 0;
+
+        for (int i = 0; i < input.size(); i++) {
+            sum += ((long)input.get(i).id*i);
+        }
+
+        return sum;
+    }
+
+    private ArrayList<FileBlock> moveBlocks(ArrayList<FileBlock> input) {
+        ArrayList<FileBlock> returnVal = new ArrayList<>();
+        int index1 = input.size()-1;
+        int index2 = 0;
+
+        while (index2 < input.size() && index1 >= index2) {
+            if (input.get(index2).id != -1) {
+                returnVal.add(input.get(index2));
+                index2++;
+            } else {
+                while (input.get(index1).id == -1) {
+                    index1--;
+                }
+                returnVal.add(input.get(index1));
+                index1--;
+                index2++;
+            }
+        }
+
+        return returnVal;
+    }
+
+    private ArrayList<FileBlock> calculateSpacing(String input) {
+        int id = 0;
+        ArrayList<FileBlock> returnVal = new ArrayList<>();
+
+        for (int i = 0; i < input.length(); i++) {
+            if (i%2 == 0){
+                for (int j = 0; j < Integer.parseInt(input.substring(i, i+1)); j++) {
+                    returnVal.add(new FileBlock(id));
+                }
+                id++;
+            } else {
+                for (int j = 0; j < Integer.parseInt(input.substring(i, i+1)); j++) {
+                    returnVal.add(new FileBlock(-1));
+                }
+            }
+        }
+        return returnVal;
     }
 
     //day 8 methods below
@@ -944,6 +995,14 @@ public class Main {
         Coordinates(int y, int x){
             this.x = x;
             this.y = y;
+        }
+    }
+
+    private class FileBlock{
+        int id;
+
+        FileBlock(int id){
+            this.id = id;
         }
     }
 }
