@@ -2,10 +2,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,41 +21,46 @@ public class Main {
     }
 
     private int obstacleLoopPositionCount(char[][] grid) {
-        int count = 0;
+        List<ArrayList<Integer>> possiblePositions = Collections.synchronizedList(new ArrayList<>());
 
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[i].length; j++) {
-                if (grid[i][j] != '.') {
-                    continue;
-                }
+        int[] guardPosition = getGuardPosition(grid);
+        Set<ArrayList<Integer>> guardCoordinates = Collections.synchronizedSet(new HashSet<>());
+        guardCoordinates.addAll(getGuardUniquePositions(grid, guardPosition));
 
-                grid[i][j] = '#';
-                if (uniqueGuardMoveCount(grid) == -1) count++;
-                grid[i][j] = '.';
+        guardCoordinates.forEach(guardCoordinate ->{
+            char[][] tempGrid = grid.clone();
+            int[] tempGuardPos = guardPosition.clone();
+
+            int x = guardCoordinate.get(0);
+            int y = guardCoordinate.get(1);
+
+            if (x == tempGuardPos[0] && y == tempGuardPos[1]) {
+                return;
             }
-        }
 
-        return count;
+            tempGrid[y][x] = '#';
+
+            if (uniqueGuardMoveCount(tempGrid, tempGuardPos) == -1) possiblePositions.add(guardCoordinate);
+
+            tempGrid[y][x] = '.';
+        });
+
+        return possiblePositions.size();
     }
 
-    private int uniqueGuardMoveCount(char[][] grid){
+    private int uniqueGuardMoveCount(char[][] grid) {
+        return uniqueGuardMoveCount(grid, getGuardPosition(grid));
+    }
+
+    private HashSet<ArrayList<Integer>> getGuardUniquePositions(char[][] grid, int[] guardPosition) {
+        HashSet<ArrayList<Integer>> uniquePositions = new HashSet<>();
         boolean isOnMap = true;
-        int guardX = -1, guardY = -1;
-        HashSet<ArrayList<Integer>> previousPositions = new HashSet<>();
+        int guardX = guardPosition[0], guardY = guardPosition[1];
         String direction = "^";
         int ignoredCount = 0;
 
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[i].length; j++) {
-                if (grid[i][j] == '^'||grid[i][j] == 'v'||grid[i][j] == '>'||grid[i][j] == '<') {
-                    guardX = j;
-                    guardY = i;
-                }
-            }
-        }
-
         if (guardX < 0) {
-            return 0;
+            return uniquePositions;
         }
 
         while (true) {
@@ -120,6 +123,126 @@ public class Main {
                     String symbol = "";
                     try {
                         symbol = grid[guardY][guardX-1]+"";
+                    } catch (IndexOutOfBoundsException e) {
+                        isOnMap = false;
+                    }
+
+                    if (!isOnMap){
+                        break;
+                    }
+
+                    if (symbol.equals("#")) {
+                        direction = "^";
+                    } else {
+                        guardX--;
+                    }
+                }
+
+                default -> throw new RuntimeException("unexpected direction: " + direction);
+            }
+
+            if (!isOnMap) {
+                break;
+            }
+
+            ArrayList<Integer> temp = new ArrayList<>();
+            temp.add(guardX);
+            temp.add(guardY);
+
+            if(!uniquePositions.add(temp)) ignoredCount++;
+            if (ignoredCount == (uniquePositions.size()*2)) break;
+        }
+
+        return uniquePositions;
+    }
+
+    private int[] getGuardPosition(char[][] grid) {
+        int[] guardPosition = new int[2];
+
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[i].length; j++) {
+                if (grid[i][j] == '^'||grid[i][j] == 'v'||grid[i][j] == '>'||grid[i][j] == '<') {
+                    guardPosition[0] = j;
+                    guardPosition[1] = i;
+                }
+            }
+        }
+
+        return guardPosition;
+    }
+
+    private int uniqueGuardMoveCount(char[][] grid, int[] guardPosition){
+        char[][] tempGrid = grid.clone();
+        boolean isOnMap = true;
+        int guardX = guardPosition[0], guardY = guardPosition[1];
+        HashSet<ArrayList<Integer>> previousPositions = new HashSet<>();
+        String direction = "^";
+        int ignoredCount = 0;
+
+        if (guardX < 0) {
+            return 0;
+        }
+
+        while (true) {
+            switch(direction){
+                case "^" -> {
+                    String symbol = "";
+                    try {
+                        symbol = tempGrid[guardY-1][guardX]+"";
+                    } catch (IndexOutOfBoundsException e) {
+                        isOnMap = false;
+                    }
+
+                    if (!isOnMap){
+                        break;
+                    }
+
+                    if (symbol.equals("#")) {
+                        direction = ">";
+                    } else {
+                        guardY--;
+                    }
+                }
+                case ">" -> {
+                    String symbol = "";
+                    try {
+                        symbol = tempGrid[guardY][guardX+1]+"";
+                    } catch (IndexOutOfBoundsException e) {
+                        isOnMap = false;
+                    }
+
+                    if (!isOnMap){
+                        break;
+                    }
+
+                    if (symbol.equals("#")) {
+                        direction = "v";
+                    } else {
+                        guardX++;
+                    }
+                }
+                case "v" -> {
+                    String symbol = "";
+                    try {
+                        symbol = tempGrid[guardY+1][guardX]+"";
+                    } catch (IndexOutOfBoundsException e) {
+                        isOnMap = false;
+                    }
+
+                    if (!isOnMap){
+                        break;
+                    }
+
+                    if (symbol.equals("#")) {
+                        direction = "<";
+                    } else {
+                        guardY++;
+                    }
+                }
+                case "<" -> {
+                    String symbol = "";
+                    try {
+                        symbol = tempGrid[guardY][guardX-1]+"";
                     } catch (IndexOutOfBoundsException e) {
                         isOnMap = false;
                     }
