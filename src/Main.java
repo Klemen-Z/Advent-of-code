@@ -14,14 +14,14 @@ public class Main {
 
         String vals = regexMatch(input);
 
-        System.out.println(multiplyAllThenAdd(handleDoDont(vals)));
+        System.out.println(multiplyAllThenAdd(ignoreDoDont(vals)));
     }
 
     private static int multiplyAllThenAdd(ArrayList<String[]> nums){
         int finalCount = 0;
 
         for (String[] num : nums) {
-            for (int i = 1; i < num.length; i++) {
+            for (int i = 0; i < num.length-1; i++) {
                 if (i%2 == 1){
                     int num1 = Integer.parseInt(num[i]);
                     int num2 = Integer.parseInt(num[i+1]);
@@ -46,14 +46,30 @@ public class Main {
         return returnVal.toString();
     }
 
+    private static ArrayList<String[]> ignoreDoDont(String input){
+        String formattedInput = input.replaceAll("[dont']", "");
+        ArrayList<String[]> nums = new ArrayList<>();
+
+        String[] inputArr = convertMulInstructions(formattedInput);
+
+        for (int i = 0; i < inputArr.length; i++) {
+            if (i%2 == 1){
+                nums.add(new String[]{"",inputArr[i], inputArr[i+1]});
+            }
+        }
+
+        return nums;
+    }
+
     private static ArrayList<String[]> handleDoDont(String input){
         ArrayList<String> donts = new ArrayList<>(Arrays.asList(input.split("(don't\\(\\))")));
         ArrayList<String> vals = new ArrayList<>();
         vals.add(donts.getFirst().replace("do", ""));
 
         for(int i = 1; i < donts.size(); i++){
-            if (donts.get(i).contains("do()")){
-                String[] tempArr = donts.get(i).split("do\\(\\)");
+            String tempStr = donts.get(i);
+            if (tempStr.contains("do()")){
+                String[] tempArr = tempStr.split("do\\(\\)");
                 vals.addAll(Arrays.asList(tempArr).subList(1, tempArr.length));
             }
         }
