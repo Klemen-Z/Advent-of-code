@@ -15,7 +15,7 @@ public class Main {
         Main main = new Main();
         String input = readFile("input.txt");
 
-        System.out.println("There are " + main.calculateTotalElements(main.arrangementParse(input), 75) + " stones");
+        System.out.println("There are " + main.calculateTotalElements(main.arrangementParse(input), 45) + " stones");
 
         final long end = System.currentTimeMillis();
         System.out.println("Time taken: " + (end - start) + " ms");
@@ -23,45 +23,55 @@ public class Main {
 
     //Workshop space below
 
-    //TODO convert so that there is a map that leads to the next value to avoid doing the same calculation multiple times.
-
     public long calculateTotalElements(ArrayList<Long> numbers, int iterations) {
         AtomicLong totalElements = new AtomicLong(numbers.size());
+        Map<Long, Long[]> knownOps = Collections.synchronizedMap(new HashMap<>());
+        knownOps.put(0L, new Long[]{1L});
 
-        numbers.parallelStream().forEach(number -> {
-            long sum = blink(number, iterations, 0L);
-            totalElements.addAndGet(sum);
-            System.out.println("Blinked");
+        numbers.forEach(number -> {
+            final long start = System.currentTimeMillis();
+            blink(number, iterations, totalElements, knownOps);
+            final long end = System.currentTimeMillis();
+            System.out.println("Iteration done, took: " + (end - start) + " ms");
         });
 
         return totalElements.get();
     }
 
-    public long blink(Long number, int iterations, long total) {
-        long counter = total;
+    public void blink(Long number, int iterations, AtomicLong total, Map<Long, Long[]> knownOps) {
         if (iterations <= 0) {
-            return counter;
+            return;
         };
+        if (knownOps.containsKey(number)) {
+            Long[] nums = knownOps.get(number);
+            if (nums.length == 1) {
+               blink(nums[0], iterations-1, total, knownOps);
+               return;
+            }
 
-        if (number == 0){
-            counter += blink(1L, iterations-1, total);
-            return counter;
+            total.incrementAndGet();
+            for (Long num : nums) {
+                blink(num, iterations-1, total, knownOps);
+            }
+            return;
         }
+
         String numberStr = number+"";
         if (numberStr.length()%2 == 0) {
-            counter++;
+            total.incrementAndGet();
             long left = Long.parseLong(numberStr.substring(0, numberStr.length()/2));
             long right = Long.parseLong(numberStr.substring(numberStr.length()/2));
             Long[] vals = new Long[]{left, right};
+            knownOps.put(number, vals);
             for (Long val : vals) {
-                counter += blink(val, iterations-1, total);
+                blink(val, iterations-1, total, knownOps);
             }
-            return counter;
+            return;
         }
 
         long newNum = number*2024;
-        counter += blink(newNum, iterations-1, total);
-        return counter;
+        knownOps.put(number, new Long[]{newNum});
+        blink(newNum, iterations-1, total, knownOps);
     }
 
     public ArrayList<Long> arrangementParse(String input) {
