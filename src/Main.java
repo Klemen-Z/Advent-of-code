@@ -18,7 +18,8 @@ public class Main {
         ArrayList<RuleSet> rules = main.compileRules(mainArr[0]);
         ArrayList<ArrayList<Integer>> intArrays = main.compileArrays(mainArr[1]);
 
-        ArrayList<ArrayList<Integer>> correctIntArrs = main.getCorrectlyOrderedArrs(intArrays, rules);
+        ArrayList<ArrayList<Integer>> wrongIntArrs = main.getWronglyOrderedArrs(intArrays, rules);
+        ArrayList<ArrayList<Integer>> correctIntArrs = main.fixOrder(wrongIntArrs, rules);
 
         System.out.println(main.addMiddleNumbers(correctIntArrs));
 
@@ -34,6 +35,52 @@ public class Main {
         }
 
         return count;
+    }
+
+    private ArrayList<ArrayList<Integer>> fixOrder(ArrayList<ArrayList<Integer>> arrs, ArrayList<RuleSet> rules) {
+        ArrayList<ArrayList<Integer>> correctedArrs = new ArrayList<>();
+
+        for (ArrayList<Integer> arr : arrs) {
+            while(!checkRules(arr, rules)){
+                for(RuleSet rule : rules){
+                    if (!arr.contains(rule.first) || !arr.contains(rule.after)){
+                        continue;
+                    }
+
+                    if (arr.indexOf(rule.first) > arr.indexOf(rule.after)) {
+                        int prevIndex = arr.indexOf(rule.after);
+                        arr.set(arr.indexOf(rule.first), rule.after);
+                        arr.set(prevIndex, rule.first);
+                    }
+                }
+            }
+            correctedArrs.add(arr);
+        }
+
+        return correctedArrs;
+    }
+
+    private ArrayList<ArrayList<Integer>> getWronglyOrderedArrs(ArrayList<ArrayList<Integer>> arrs, ArrayList<RuleSet> rules) {
+        ArrayList<ArrayList<Integer>> intArrs = new ArrayList<>(arrs);
+
+        ArrayList<ArrayList<Integer>> correctArrs = getCorrectlyOrderedArrs(intArrs, rules);
+        intArrs.removeAll(correctArrs);
+
+        return intArrs;
+    }
+
+    private boolean checkRules(ArrayList<Integer> arr, ArrayList<RuleSet> rules) {
+        for (RuleSet rule : rules) {
+            if (!arr.contains(rule.first) || !arr.contains(rule.after)){
+                continue;
+            }
+
+            if (arr.indexOf(rule.first) > arr.indexOf(rule.after)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private ArrayList<ArrayList<Integer>> getCorrectlyOrderedArrs(ArrayList<ArrayList<Integer>> arrs, ArrayList<RuleSet> rules) {
@@ -57,10 +104,6 @@ public class Main {
             if (fulfillsRules) {
                 intArrs.add(arr);
             }
-        }
-
-        for (ArrayList<Integer> arr : intArrs) {
-
         }
 
         return intArrs;
