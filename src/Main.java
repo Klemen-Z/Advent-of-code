@@ -32,6 +32,7 @@ public class Main {
                 int forwardNum = 0;
                 int reverseNum = 0;
 
+                //regular
                 while(nums < word.length()){
                     int[] prevVals = new int[]{forwardNum, reverseNum};
 
@@ -53,6 +54,7 @@ public class Main {
                 forwardNum = 0;
                 reverseNum = 0;
 
+                //vertical
                 while(nums < word.length()){
                     int[] prevVals = new int[]{forwardNum, reverseNum};
 
@@ -74,6 +76,7 @@ public class Main {
                 forwardNum = 0;
                 reverseNum = 0;
 
+                //diagonal /
                 while(nums < word.length()){
                     int[] prevVals = new int[]{forwardNum, reverseNum};
 
@@ -95,6 +98,7 @@ public class Main {
                 forwardNum = 0;
                 reverseNum = 0;
 
+                //diagonal \
                 while(nums < word.length()){
                     int[] prevVals = new int[]{forwardNum, reverseNum};
 
@@ -103,7 +107,7 @@ public class Main {
                     } catch (IndexOutOfBoundsException ignored){}
 
                     try{
-                        if (grid[i+nums][j+nums] == word.charAt(nums)) reverseNum++;
+                        if (grid[i-nums][j-nums] == word.charAt(nums)) reverseNum++;
                     } catch (IndexOutOfBoundsException ignored){}
 
                     if (forwardNum == word.length()) count++;
