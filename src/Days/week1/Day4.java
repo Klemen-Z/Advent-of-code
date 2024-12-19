@@ -1,4 +1,4 @@
-package Days;
+package Days.week1;
 
 public class Day4 {
     private int parseForXOfWord(String word, char[][] grid) {

@@ -1,5 +1,5 @@
-import Days.*;
-import Days.Day9.*;
+import Days.week2.Day9;
+import Days.week2.Day9.*;
 
 import java.io.File;
 import java.io.FileReader;
