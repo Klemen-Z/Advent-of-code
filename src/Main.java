@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class Main {
     public static void main(String[] args) {
 
-        String[] nums = readFile("nums.txt").toString().replace("   ", "\n").replace("\r", "").split("\n");
+        String[] nums = readFile("nums.txt").replace("   ", "\n").replace("\r", "").split("\n");
 
         ArrayList<Integer> list1 = new ArrayList<>();
         ArrayList<Integer> list2 = new ArrayList<>();
@@ -49,7 +49,7 @@ public class Main {
         list1.sort(Integer::compareTo);
 
         for (int i = 0; i < list1.size(); i++) {
-            int tempVal = 0;
+            int tempVal;
 
             int int1 = list1.get(i);
             int int2 = list2.get(i);
@@ -79,7 +79,7 @@ public class Main {
         StringBuilder sb = new StringBuilder();
 
         while (true) {
-            int res = -1;
+            int res;
             try {
                 res = fr.read();
             } catch (IOException e) {
