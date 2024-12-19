@@ -16,14 +16,14 @@ public class Main {
         char[][] grid = main.createGrid(input);
         HashSet<Character> uniqueFrequencies = main.getFrequencies(input);
         Map<Character, ArrayList<Coordinates>> antennaLocations = main.locateAllAntennas(grid, uniqueFrequencies);
-        System.out.println(main.locateAllAntinodes(antennaLocations, grid.length).size());
+        System.out.println(main.locateAllAntinodes(antennaLocations, grid.length, false).size());
 
         final long end = System.currentTimeMillis();
         System.out.println("Time taken: " + (end - start) + " ms");
     }
 
     //day 8 methods below
-    private Set<Coordinates> locateAllAntinodes(Map<Character, ArrayList<Coordinates>> antennaLocations, int gridMax) {
+    private Set<Coordinates> locateAllAntinodes(Map<Character, ArrayList<Coordinates>> antennaLocations, int gridMax, boolean part1) {
         Set<Coordinates> allAntinodes = Collections.synchronizedSet(new HashSet<>());
 
         antennaLocations.keySet().forEach(key -> {
@@ -36,11 +36,26 @@ public class Main {
 
                     int xDistance = c1.x-c2.x;
                     int yDistance = c1.y-c2.y;
+                    int tempXDist = 0;
+                    int tempYDist = 0;
 
-                    Coordinates combo = new Coordinates(c1.y+yDistance, c1.x+xDistance);
+                    if (part1){
+                        Coordinates combo = new Coordinates(c1.y+yDistance, c1.x+xDistance);
+                        if (combo.x < gridMax && combo.y < gridMax && combo.x >= 0 && combo.y >= 0){
+                            allAntinodes.add(combo);
+                        }
+                        continue;
+                    }
 
-                    if (combo.x < gridMax && combo.y < gridMax && combo.x >= 0 && combo.y >= 0){
-                        allAntinodes.add(combo);
+                    while(true){
+                        Coordinates combo = new Coordinates(c1.y+tempYDist, c1.x+tempXDist);
+                        if (combo.x < gridMax && combo.y < gridMax && combo.x >= 0 && combo.y >= 0){
+                            allAntinodes.add(combo);
+                        } else {
+                            break;
+                        }
+                        tempXDist += xDistance;
+                        tempYDist += yDistance;
                     }
                 }
             }
